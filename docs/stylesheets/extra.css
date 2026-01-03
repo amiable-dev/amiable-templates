@@ -8,17 +8,58 @@
   color: white;
 }
 
+.hero img {
+  max-width: 180px;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
 .hero h1 {
   margin: 0.5rem 0;
   font-size: 2.5rem;
   font-weight: 600;
   color: white;
+  font-family: "JetBrains Mono", monospace;
 }
 
 .hero p {
   margin: 0.5rem 0 1.5rem;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   opacity: 0.9;
+}
+
+.hero .hero-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero .hero-buttons a {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.3rem;
+  text-decoration: none;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s;
+  min-width: 160px;
+  text-align: center;
+}
+
+.hero .hero-buttons a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.hero .hero-buttons .primary {
+  background: white;
+  color: #512da8;
+}
+
+.hero .hero-buttons .secondary {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
 }
 
 .hero .md-button {

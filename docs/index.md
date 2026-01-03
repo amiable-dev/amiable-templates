@@ -6,16 +6,13 @@ hide:
 ---
 
 <div class="hero" markdown>
-
-# Amiable Templates
-
-**Production-ready Railway deployment templates for AI infrastructure**
-
-Deploy complete AI stacks to Railway in minutes, not hours.
-
-[Get Started](quickstart.md){ .md-button .md-button--primary }
-[Browse Templates](templates/index.md){ .md-button }
-
+  <img src="img/logo.png" alt="Amiable Templates">
+  <h1>amiable-templates</h1>
+  <p>Production-ready Railway deployment templates for AI infrastructure</p>
+  <div class="hero-buttons">
+    <a href="quickstart/" class="primary">Get Started</a>
+    <a href="https://github.com/amiable-dev/amiable-templates" class="secondary">GitHub</a>
+  </div>
 </div>
 
 ## Why Amiable Templates?

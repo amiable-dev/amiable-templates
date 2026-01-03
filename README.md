@@ -1,10 +1,20 @@
-# amiable-templates
+<p align="center">
+  <a href="https://amiable-dev.github.io/amiable-templates">
+    <img src="https://raw.githubusercontent.com/amiable-dev/amiable-templates/main/docs/img/logo.png" alt="Amiable Templates Logo" width="200">
+  </a>
+</p>
 
-[![Deploy](https://github.com/amiable-dev/amiable-templates/actions/workflows/deploy.yml/badge.svg)](https://github.com/amiable-dev/amiable-templates/actions/workflows/deploy.yml)
-[![Security](https://github.com/amiable-dev/amiable-templates/actions/workflows/security.yml/badge.svg)](https://github.com/amiable-dev/amiable-templates/actions/workflows/security.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<h1 align="center">amiable-templates</h1>
 
-**A unified documentation portal for Railway deployment templates.**
+<p align="center">
+  <a href="https://github.com/amiable-dev/amiable-templates/actions/workflows/deploy.yml"><img src="https://github.com/amiable-dev/amiable-templates/actions/workflows/deploy.yml/badge.svg" alt="Deploy"></a>
+  <a href="https://github.com/amiable-dev/amiable-templates/actions/workflows/security.yml"><img src="https://github.com/amiable-dev/amiable-templates/actions/workflows/security.yml/badge.svg" alt="Security"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+</p>
+
+<p align="center">
+  <em>A unified documentation portal for Railway deployment templates.</em>
+</p>
 
 ## What is This?
 

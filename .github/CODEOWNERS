@@ -1,0 +1,18 @@
+# Default owners for everything
+* @amiable-dev/maintainers
+
+# Template configuration (critical)
+templates.yaml @amiable-dev/maintainers
+templates.schema.yaml @amiable-dev/maintainers
+
+# CI/CD workflows
+.github/ @amiable-dev/maintainers
+
+# ADRs require review
+docs/adrs/ @amiable-dev/maintainers
+
+# Aggregation scripts
+scripts/ @amiable-dev/maintainers
+
+# MkDocs configuration
+mkdocs.yml @amiable-dev/maintainers

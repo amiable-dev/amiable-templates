@@ -1,0 +1,85 @@
+---
+title: Home
+hide:
+  - navigation
+  - toc
+---
+
+<div class="hero" markdown>
+
+# Amiable Templates
+
+**Production-ready Railway deployment templates for AI infrastructure**
+
+Deploy complete AI stacks to Railway in minutes, not hours.
+
+[Get Started](quickstart.md){ .md-button .md-button--primary }
+[Browse Templates](templates/index.md){ .md-button }
+
+</div>
+
+## Why Amiable Templates?
+
+<div class="grid cards" markdown>
+
+-   :material-rocket-launch:{ .lg .middle } **Deploy in Minutes**
+
+    ---
+
+    Pre-configured templates with sensible defaults. Just click deploy and customize.
+
+-   :material-shield-check:{ .lg .middle } **Production Ready**
+
+    ---
+
+    Battle-tested configurations with monitoring, backups, and security best practices.
+
+-   :material-open-source-initiative:{ .lg .middle } **Open Source**
+
+    ---
+
+    All templates are MIT licensed. Fork, customize, and contribute back.
+
+-   :material-file-document:{ .lg .middle } **Well Documented**
+
+    ---
+
+    Comprehensive guides, runbooks, and architecture decision records.
+
+</div>
+
+## Featured Templates
+
+### LiteLLM + Langfuse
+
+Production-ready LLM gateway with full observability. Deploy a unified API for 100+ LLM providers with complete cost tracking and request tracing.
+
+[:octicons-rocket-16: Deploy Starter](https://railway.app/template/litellm-langfuse){ .md-button }
+[:octicons-book-16: View Docs](templates/index.md){ .md-button }
+
+### LLM Council
+
+Multi-model consensus system for AI decision-making. Get multiple LLM perspectives and synthesized verdicts for critical decisions.
+
+[:octicons-mark-github-16: View on GitHub](https://github.com/amiable-dev/llm-council){ .md-button }
+
+## Template Repositories
+
+| Template | Description | Status |
+|----------|-------------|--------|
+| [litellm-langfuse-railway](https://github.com/amiable-dev/litellm-langfuse-railway) | LLM gateway with observability | Stable |
+| [llm-council](https://github.com/amiable-dev/llm-council) | Multi-model consensus | Stable |
+
+## Contributing
+
+We welcome contributions! Whether you want to:
+
+- **Add a new template** - Share your Railway deployment configuration
+- **Improve documentation** - Fix typos, add examples, clarify instructions
+- **Report issues** - Found a bug or broken link?
+
+Check out our [Contributing Guide](contributing.md) to get started.
+
+## License
+
+All templates and documentation are licensed under the [MIT License](https://github.com/amiable-dev/amiable-templates/blob/main/LICENSE).

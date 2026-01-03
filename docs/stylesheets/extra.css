@@ -1,0 +1,134 @@
+/* Hero Section */
+.hero {
+  text-align: center;
+  padding: 3rem 1rem 2rem;
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, #7e57c2 0%, #512da8 100%);
+  border-radius: 0.5rem;
+  color: white;
+}
+
+.hero h1 {
+  margin: 0.5rem 0;
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: white;
+}
+
+.hero p {
+  margin: 0.5rem 0 1.5rem;
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.hero .md-button {
+  margin: 0.25rem;
+}
+
+.hero .md-button--primary {
+  background: white;
+  color: #512da8;
+  border-color: white;
+}
+
+.hero .md-button--primary:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* Dark mode hero */
+[data-md-color-scheme="slate"] .hero {
+  background: linear-gradient(135deg, #5e35b1 0%, #311b92 100%);
+}
+
+/* Template Grid */
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.template-card {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  background: var(--md-default-bg-color);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.template-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.template-card h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+}
+
+.template-card p {
+  font-size: 0.9rem;
+  color: var(--md-default-fg-color--light);
+  margin-bottom: 1rem;
+}
+
+.template-card ul {
+  font-size: 0.875rem;
+  padding-left: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.template-card .md-button {
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Dark mode card adjustments */
+[data-md-color-scheme="slate"] .template-card {
+  border-color: var(--md-default-fg-color--lighter);
+}
+
+[data-md-color-scheme="slate"] .template-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Grid Cards (MkDocs Material feature cards) */
+.grid.cards > ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.grid.cards > ul > li {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
+
+/* Icon sizing for feature cards */
+.lg.middle {
+  font-size: 2rem;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+
+/* Table improvements */
+.md-typeset table:not([class]) {
+  font-size: 0.875rem;
+}
+
+/* ADR status badges */
+.md-typeset .admonition.note.draft {
+  border-color: #ffc107;
+}
+
+.md-typeset .admonition.note.draft > .admonition-title {
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+.md-typeset .admonition.note.draft > .admonition-title::before {
+  background-color: #ffc107;
+}

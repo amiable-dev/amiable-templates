@@ -1,0 +1,102 @@
+site_name: Amiable Templates
+site_url: https://amiable-dev.github.io/amiable-templates
+site_description: Production-ready Railway deployment templates for AI infrastructure
+site_author: Amiable Dev
+
+repo_name: amiable-dev/amiable-templates
+repo_url: https://github.com/amiable-dev/amiable-templates
+edit_uri: edit/main/docs/
+
+copyright: Copyright &copy; 2024-2026 Amiable Dev
+
+theme:
+  name: material
+  # logo: img/logo.svg  # Add logo when available
+  # favicon: img/favicon.png
+  font:
+    text: Inter
+    code: JetBrains Mono
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - toc.follow
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+  - tags
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html
+  - def_list
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Quick Start: quickstart.md
+  - Templates:
+    - templates/index.md
+  - ADRs:
+    - adrs/index.md
+    - Template: adrs/ADR-000-template.md
+    - "ADR-001: Project Structure": adrs/ADR-001-project-structure-oss-standards.md
+    - "ADR-002: MkDocs Architecture": adrs/ADR-002-mkdocs-site-architecture.md
+    - "ADR-003: Template Configuration": adrs/ADR-003-template-configuration-system.md
+    - "ADR-004: CI/CD & Deployment": adrs/ADR-004-ci-cd-deployment.md
+    - "ADR-005: DevSecOps": adrs/ADR-005-devsecops-implementation.md
+    - "ADR-006: Doc Aggregation": adrs/ADR-006-cross-project-adr-aggregation.md
+  - Contributing: contributing.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/amiable-dev/amiable-templates
+      name: GitHub
+  generator: false
+
+extra_css:
+  - stylesheets/extra.css

@@ -1,0 +1,180 @@
+# Amiable Templates Registry
+# This file defines all Railway templates to aggregate into the documentation site.
+# See ADR-003 for schema documentation.
+
+version: "1.0"
+
+settings:
+  github_api:
+    # Authenticated requests get 5000/hr vs 60/hr unauthenticated
+    require_token: true
+    # Parallel fetch limit to avoid rate limiting
+    concurrency: 5
+
+  cache:
+    # Cache directory (git-ignored, CI-cached)
+    directory: ".cache/templates"
+    # Manifest file tracking commit SHAs
+    manifest: ".cache/templates/manifest.json"
+
+  output:
+    # Where aggregated docs are written
+    docs_directory: "docs/templates"
+
+# Categories for organizing templates
+categories:
+  - id: observability
+    name: "Observability & Monitoring"
+    icon: "material/chart-line"
+    description: "LLM observability, tracing, and monitoring stacks"
+
+  - id: ai-infrastructure
+    name: "AI Infrastructure"
+    icon: "material/brain"
+    description: "LLM gateways, consensus systems, and AI tooling"
+
+# Template definitions
+templates:
+  # LiteLLM + Langfuse Starter
+  - id: litellm-langfuse-starter
+    repo:
+      owner: "amiable-dev"
+      name: "litellm-langfuse-railway"
+
+    title: "LiteLLM + Langfuse Starter"
+    description: "Production-ready LLM gateway with full observability. Deploy a unified API for 100+ LLM providers with cost tracking and request tracing."
+    value_proposition: "Get a unified API for 100+ LLM providers with complete tracing in under 5 minutes"
+
+    category: observability
+    tags:
+      - litellm
+      - langfuse
+      - llm-gateway
+      - observability
+      - cost-tracking
+
+    tier: starter
+
+    directories:
+      template: "starter"
+      docs:
+        - path: "starter/README.md"
+          target: "overview.md"
+          sidebar_label: "Overview"
+        - path: "starter/SETUP.md"
+          target: "setup.md"
+          sidebar_label: "Setup Guide"
+      adrs:
+        - path: "docs/adr"
+
+    links:
+      railway_template: "https://railway.app/template/litellm-langfuse"
+      github: "https://github.com/amiable-dev/litellm-langfuse-railway"
+
+    features:
+      - "100+ LLM Providers"
+      - "Virtual Keys & Budgets"
+      - "Cost Tracking"
+      - "Full Trace Visibility"
+
+    estimated_cost:
+      min: 29
+      max: 68
+      currency: "USD"
+      period: "month"
+
+  # LiteLLM + Langfuse Production
+  - id: litellm-langfuse-production
+    repo:
+      owner: "amiable-dev"
+      name: "litellm-langfuse-railway"
+
+    title: "LiteLLM + Langfuse Production"
+    description: "Enterprise-grade LLM infrastructure with automated backups, health monitoring, and alerting. Everything you need for production workloads."
+    value_proposition: "Enterprise-grade resilience with automated backups, health monitoring, and PagerDuty integration"
+
+    category: observability
+    tags:
+      - litellm
+      - langfuse
+      - llm-gateway
+      - observability
+      - production
+      - backups
+      - monitoring
+
+    tier: production
+
+    directories:
+      template: "production"
+      docs:
+        - path: "production/README.md"
+          target: "overview.md"
+          sidebar_label: "Overview"
+        - path: "production/docs/RUNBOOK.md"
+          target: "runbook.md"
+          sidebar_label: "Operations Runbook"
+        - path: "production/docs/UPGRADE.md"
+          target: "upgrade.md"
+          sidebar_label: "Upgrade Guide"
+        - path: "production/docs/COMPARISON.md"
+          target: "comparison.md"
+          sidebar_label: "Starter vs Production"
+
+    links:
+      github: "https://github.com/amiable-dev/litellm-langfuse-railway/tree/main/production"
+
+    features:
+      - "Automated Daily Backups"
+      - "Health Monitoring & Alerts"
+      - "Redis AOF Persistence"
+      - "Operations Runbook"
+      - "PagerDuty Integration"
+
+    estimated_cost:
+      min: 33
+      max: 78
+      currency: "USD"
+      period: "month"
+
+    relates_to:
+      - template_id: litellm-langfuse-starter
+        relationship: "production_version"
+
+  # LLM Council
+  - id: llm-council
+    repo:
+      owner: "amiable-dev"
+      name: "llm-council"
+
+    title: "LLM Council"
+    description: "Multi-model consensus system for AI decision-making. Get synthesized verdicts from multiple LLM providers for critical decisions."
+    value_proposition: "Make better AI decisions with multi-model deliberation and peer review synthesis"
+
+    category: ai-infrastructure
+    tags:
+      - llm
+      - multi-agent
+      - consensus
+      - mcp
+      - python
+
+    tier: stable
+
+    directories:
+      docs:
+        - path: "README.md"
+          target: "overview.md"
+          sidebar_label: "Overview"
+      adrs:
+        - path: "docs/adr"
+
+    links:
+      github: "https://github.com/amiable-dev/llm-council"
+
+    features:
+      - "Multi-Model Deliberation"
+      - "Peer Review Synthesis"
+      - "MCP Server Integration"
+      - "Configurable Tiers"
+      - "Audit Transcripts"

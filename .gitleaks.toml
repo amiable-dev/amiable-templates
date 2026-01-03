@@ -1,0 +1,24 @@
+# Gitleaks configuration for amiable-templates
+# See: https://github.com/gitleaks/gitleaks
+
+[extend]
+useDefault = true
+
+# Reduce false positives in documentation
+[allowlist]
+paths = [
+  '''\.md$''',
+]
+
+# Allow example/placeholder API keys in docs
+[[rules]]
+id = "example-api-key"
+description = "Ignore example API keys in documentation"
+regex = '''sk-example-[a-zA-Z0-9]+'''
+allowlist = { regexes = ['''sk-example-'''] }
+
+[[rules]]
+id = "placeholder-key"
+description = "Ignore placeholder API keys"
+regex = '''YOUR_API_KEY|your-api-key|xxx+'''
+allowlist = { regexes = ['''YOUR_API_KEY|your-api-key|xxx+'''] }

@@ -246,28 +246,28 @@ Future fields can be added without breaking existing entries:
 
 ### Phase 1: Core Schema
 
-- [ ] Create templates.yaml with initial templates
-- [ ] Define JSON Schema for validation
-- [ ] Add validation to CI workflow
+- [x] Create templates.yaml with initial templates
+- [x] Define JSON Schema for validation
+- [x] Add validation to CI workflow
 
 ### Phase 2: Aggregation Integration
 
-- [ ] Aggregation script reads templates.yaml
-- [ ] Fetch docs based on `directories.docs`
-- [ ] Generate template grid from config
+- [x] Aggregation script reads templates.yaml
+- [x] Fetch docs based on `directories.docs`
+- [x] Generate template grid from config
 
 ### Phase 3: Documentation
 
-- [ ] Document schema in CONTRIBUTING.md
-- [ ] Add examples for common patterns
-- [ ] IDE schema configuration
+- [x] Document schema in CONTRIBUTING.md
+- [x] Add examples for common patterns
+- [x] IDE schema configuration
 
 ## Compliance / Validation
 
-- [ ] Schema validates all current templates
-- [ ] Invalid entries produce clear error messages
-- [ ] CI fails on schema violations
-- [ ] Aggregation script handles missing optional fields
+- [x] Schema validates all current templates
+- [x] Invalid entries produce clear error messages
+- [x] CI fails on schema violations
+- [x] Aggregation script handles missing optional fields
 
 ---
 

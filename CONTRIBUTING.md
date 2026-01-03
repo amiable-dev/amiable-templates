@@ -177,14 +177,40 @@ To add a new template to the documentation site:
          github: "https://github.com/amiable-dev/your-template-repo"
    ```
 
-3. **Run aggregation locally:**
+3. **Validate the schema:**
+   ```bash
+   check-jsonschema --schemafile templates.schema.yaml templates.yaml
+   ```
+
+4. **Run aggregation locally:**
    ```bash
    python scripts/aggregate_templates.py
    ```
 
-4. **Preview the site** to verify the template appears correctly
+5. **Preview the site** to verify the template appears correctly
 
-5. **Submit a PR** with your changes
+6. **Submit a PR** with your changes
+
+### templates.yaml Schema
+
+The `templates.yaml` file is validated against `templates.schema.yaml`. Key fields:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `id` | Yes | Unique identifier (lowercase, hyphens) |
+| `repo.owner` | Yes | GitHub organization or user |
+| `repo.name` | Yes | Repository name |
+| `title` | Yes | Display title |
+| `description` | Yes | Brief description for template grid |
+| `category` | Yes | Category ID (e.g., `observability`) |
+| `directories.docs` | Yes | List of docs to fetch |
+| `tags` | No | Tags for filtering |
+| `features` | No | Feature highlights |
+| `estimated_cost` | No | Cost estimate object |
+| `links.railway_template` | No | Railway deploy URL |
+| `links.github` | No | GitHub repository URL |
+
+For the full schema, see `templates.schema.yaml` or [ADR-003](docs/adrs/ADR-003-template-configuration-system.md).
 
 ## Writing Documentation
 

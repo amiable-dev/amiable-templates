@@ -10,5 +10,8 @@ pyyaml>=6.0
 aiohttp>=3.9.0
 pydantic>=2.0.0
 
+# Schema validation
+check-jsonschema>=0.28.0
+
 # Development
 pre-commit>=3.0.0

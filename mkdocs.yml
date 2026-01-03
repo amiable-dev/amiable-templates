@@ -50,6 +50,9 @@ theme:
 plugins:
   - search
   - tags
+  - redirects:
+      redirect_maps:
+        'templates/index.md': 'gallery/index.md'
   - blog:
       blog_dir: blog
       post_date_format: medium

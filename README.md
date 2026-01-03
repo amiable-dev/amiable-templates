@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://amiable-dev.github.io/amiable-templates">
-    <img src="https://raw.githubusercontent.com/amiable-dev/amiable-templates/main/docs/img/logo.png" alt="Amiable Templates Logo" width="200">
+    <img src="https://raw.githubusercontent.com/amiable-dev/amiable-templates/main/docs/img/logo.svg" alt="Amiable Templates Logo" width="200">
   </a>
 </p>
 

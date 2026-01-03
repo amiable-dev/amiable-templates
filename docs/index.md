@@ -6,7 +6,7 @@ hide:
 ---
 
 <div class="hero" markdown>
-  <img src="img/logo.png" alt="Amiable Templates">
+  <img src="img/logo.svg" alt="Amiable Templates">
   <h1>amiable-templates</h1>
   <p>Production-ready Railway deployment templates for AI infrastructure</p>
   <div class="hero-buttons">

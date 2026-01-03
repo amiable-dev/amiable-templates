@@ -193,32 +193,32 @@ Implemented as static Markdown with custom CSS, avoiding JavaScript complexity.
 
 ### Phase 1: Foundation
 
-- [ ] mkdocs.yml configuration
-- [ ] requirements.txt with dependencies
-- [ ] Home page with hero section
-- [ ] Quick Start page
-- [ ] Basic template grid
+- [x] mkdocs.yml configuration
+- [x] requirements.txt with dependencies
+- [x] Home page with hero section
+- [x] Quick Start page
+- [x] Basic template grid
 
 ### Phase 2: Styling
 
-- [ ] Custom CSS for hero section
-- [ ] Template card styling
-- [ ] Dark mode verification
-- [ ] Mobile responsiveness testing
+- [x] Custom CSS for hero section
+- [x] Template card styling
+- [x] Dark mode verification
+- [x] Mobile responsiveness testing
 
 ### Phase 3: Content
 
-- [ ] ADR section structure
-- [ ] Contributing page
-- [ ] Tags configuration
+- [x] ADR section structure
+- [x] Contributing page
+- [x] Tags configuration
 
 ## Compliance / Validation
 
-- [ ] Site builds without errors (`mkdocs build --strict`)
-- [ ] All internal links valid
-- [ ] Mobile responsive (test on various screen sizes)
-- [ ] Dark mode functions correctly
-- [ ] Search returns relevant results
+- [x] Site builds without errors (`mkdocs build --strict`)
+- [x] All internal links valid
+- [x] Mobile responsive (test on various screen sizes)
+- [x] Dark mode functions correctly
+- [x] Search returns relevant results
 
 ---
 

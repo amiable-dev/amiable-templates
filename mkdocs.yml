@@ -1,5 +1,5 @@
 site_name: Amiable Templates
-site_url: https://amiable-dev.github.io/amiable-templates
+site_url: https://amiable-templates.dev
 site_description: Production-ready Railway deployment templates for AI infrastructure
 site_author: Amiable Dev
 
@@ -85,17 +85,17 @@ nav:
   - Home: index.md
   - Quick Start: quickstart.md
   - Templates:
-    - templates/index.md
+    - gallery/index.md
     - LiteLLM Starter:
-      - Overview: templates/litellm-langfuse-starter/overview.md
-      - Setup: templates/litellm-langfuse-starter/setup.md
+      - Overview: gallery/litellm-langfuse-starter/overview.md
+      - Setup: gallery/litellm-langfuse-starter/setup.md
     - LiteLLM Production:
-      - Overview: templates/litellm-langfuse-production/overview.md
-      - Runbook: templates/litellm-langfuse-production/runbook.md
-      - Upgrade Guide: templates/litellm-langfuse-production/upgrade.md
-      - Comparison: templates/litellm-langfuse-production/comparison.md
+      - Overview: gallery/litellm-langfuse-production/overview.md
+      - Runbook: gallery/litellm-langfuse-production/runbook.md
+      - Upgrade Guide: gallery/litellm-langfuse-production/upgrade.md
+      - Comparison: gallery/litellm-langfuse-production/comparison.md
     - LLM Council:
-      - Overview: templates/llm-council/overview.md
+      - Overview: gallery/llm-council/overview.md
   - ADRs:
     - adrs/index.md
     - Template: adrs/ADR-000-template.md

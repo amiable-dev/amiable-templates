@@ -52,7 +52,7 @@ hide:
 Production-ready LLM gateway with full observability. Deploy a unified API for 100+ LLM providers with complete cost tracking and request tracing.
 
 [:octicons-rocket-16: Deploy Starter](https://railway.app/template/litellm-langfuse){ .md-button }
-[:octicons-book-16: View Docs](templates/index.md){ .md-button }
+[:octicons-book-16: View Docs](gallery/index.md){ .md-button }
 
 ### LLM Council
 

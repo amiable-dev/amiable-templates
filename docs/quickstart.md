@@ -38,7 +38,7 @@ Best for: Production workloads, enterprise teams.
 - Redis with AOF persistence
 - Operations runbook
 
-[View Production Template →](templates/index.md)
+[View Production Template →](gallery/index.md)
 
 ## Post-Deployment Setup
 
@@ -93,9 +93,9 @@ curl https://your-litellm-url.railway.app/v1/chat/completions \
 
 ## Next Steps
 
-- [Configure LiteLLM models](templates/index.md) - Add more providers
-- [Set up monitoring](templates/index.md) - Configure alerts
-- [Read the runbook](templates/index.md) - Operations guide
+- [Configure LiteLLM models](gallery/index.md) - Add more providers
+- [Set up monitoring](gallery/index.md) - Configure alerts
+- [Read the runbook](gallery/index.md) - Operations guide
 
 ## Troubleshooting
 

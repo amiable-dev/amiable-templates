@@ -40,7 +40,7 @@ jobs:
             --exclude 'localhost'
             --exclude '127\.0\.0\.1'
             --exclude 'example\.com'
-            --exclude-path './docs/templates'
+            --exclude-path './docs/gallery'
             './docs/**/*.md'
             './*.md'
         env:

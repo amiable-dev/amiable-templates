@@ -1,7 +1,7 @@
 ---
 date: 2026-01-03
 authors:
-  - amiable
+  - amiable-dev
 categories:
   - ADR
   - Security
@@ -165,4 +165,4 @@ Total configuration: 3 files, ~50 lines of YAML.
 
 ## Full ADR
 
-See [ADR-005: DevSecOps Implementation](../adrs/ADR-005-devsecops-implementation.md) for the complete Architecture Decision Record.
+See [ADR-005: DevSecOps Implementation](../../adrs/ADR-005-devsecops-implementation.md) for the complete Architecture Decision Record.

@@ -27,6 +27,15 @@ repos:
       - id: check-added-large-files
         args: [--maxkb=1000]
 
+  # Schema validation for templates.yaml
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.29.4
+    hooks:
+      - id: check-jsonschema
+        name: Validate templates.yaml
+        files: ^templates\.yaml$
+        args: ['--schemafile', 'templates.schema.yaml']
+
   # Python formatting (for aggregation scripts)
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.9

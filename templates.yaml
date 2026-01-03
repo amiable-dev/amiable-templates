@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=./templates.schema.yaml
 # Amiable Templates Registry
 # This file defines all Railway templates to aggregate into the documentation site.
 # See ADR-003 for schema documentation.

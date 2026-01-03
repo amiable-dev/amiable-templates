@@ -1,0 +1,55 @@
+name: Link Check
+
+on:
+  schedule:
+    # Weekly on Sundays at midnight UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - '*.md'
+
+permissions:
+  contents: read
+
+jobs:
+  link-check:
+    name: Check Links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Restore lychee cache
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+        with:
+          path: .lycheecache
+          key: cache-lychee-${{ github.sha }}
+          restore-keys: cache-lychee-
+
+      - name: Check links
+        uses: lycheeverse/lychee-action@a8c4c7cb88f0c7386610c35eb25108e448569cb0 # v2
+        with:
+          args: >-
+            --verbose
+            --no-progress
+            --cache
+            --max-cache-age 1d
+            --exclude-mail
+            --exclude 'localhost'
+            --exclude '127\.0\.0\.1'
+            --exclude 'example\.com'
+            --exclude-path './docs/templates'
+            './docs/**/*.md'
+            './*.md'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload link check report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: failure()
+        with:
+          name: link-check-report
+          path: ./lychee/out.md
+          retention-days: 7

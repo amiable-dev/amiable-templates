@@ -1,7 +1,7 @@
 ---
 date: 2026-01-03
 authors:
-  - amiable
+  - amiable-dev
 categories:
   - ADR
   - Architecture
@@ -227,4 +227,4 @@ For documentation, this is acceptable. If you need real-time sync, consider webh
 
 ## Full ADR
 
-See [ADR-006: Cross-Project Documentation Aggregation](../adrs/ADR-006-cross-project-adr-aggregation.md) for the complete decision record.
+See [ADR-006: Cross-Project Documentation Aggregation](../../adrs/ADR-006-cross-project-adr-aggregation.md) for the complete decision record.

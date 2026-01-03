@@ -266,6 +266,35 @@ site_name: My Site
 | `help-wanted` | Extra attention needed |
 | `template-request` | Request for new template |
 
+## Security
+
+### Pre-Commit Hooks (Required)
+
+Install pre-commit hooks to catch security issues before they're committed:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+This enables:
+- **Gitleaks**: Detects accidentally committed secrets
+- **yamllint**: Validates YAML configuration files
+- **Trailing whitespace/EOF**: Code hygiene checks
+
+### Security Best Practices
+
+1. **Never commit secrets** - Use `.env` files (git-ignored)
+2. **Review diffs** - Check for accidental API keys before pushing
+3. **Report vulnerabilities** - See [SECURITY.md](SECURITY.md) for responsible disclosure
+
+### Fork Contributors
+
+All security checks run without repository secrets. Your PR will pass CI checks as long as:
+- No secrets are detected by Gitleaks
+- YAML files are valid
+- Dependencies don't have high-severity vulnerabilities
+
 ## Questions?
 
 - Check existing [Discussions](https://github.com/amiable-dev/amiable-templates/discussions)

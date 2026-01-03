@@ -150,23 +150,26 @@ All PR checks work without repository secrets:
 
 ### Gitleaks Configuration
 
-`.gitleaks.toml` to reduce false positives:
+`.gitleaks.toml` to reduce false positives (example patterns only):
 
 ```toml
 [extend]
 useDefault = true
 
+# Note: We do NOT globally exclude .md files from scanning.
+# Only specific example patterns are allowlisted.
+
 [[rules]]
 id = "example-api-key"
 description = "Ignore example API keys in documentation"
 regex = '''sk-example-[a-zA-Z0-9]+'''
-allowlist = true
+allowlist = { regexes = ['''sk-example-'''] }
 
-[allowlist]
-paths = [
-  '''\.md$''',
-  '''docs/.*'''
-]
+[[rules]]
+id = "placeholder-key"
+description = "Ignore placeholder API keys"
+regex = '''YOUR_API_KEY|your-api-key|xxx+'''
+allowlist = { regexes = ['''YOUR_API_KEY|your-api-key|xxx+'''] }
 ```
 
 ## Consequences
@@ -192,27 +195,27 @@ paths = [
 
 ### Phase 1: Foundation
 
-- [ ] Create `.pre-commit-config.yaml`
-- [ ] Create `.gitleaks.toml`
-- [ ] Update `SECURITY.md` with pre-commit instructions
+- [x] Create `.pre-commit-config.yaml`
+- [x] Create `.gitleaks.toml`
+- [x] Update `SECURITY.md` with pre-commit instructions
 
 ### Phase 2: CI Integration
 
-- [ ] Create `.github/workflows/security.yml`
-- [ ] Enable GitHub Secret Scanning (repository settings)
-- [ ] Verify Dependabot is active
+- [x] Create `.github/workflows/security.yml`
+- [x] Enable GitHub Secret Scanning (repository settings)
+- [x] Verify Dependabot is active
 
 ### Phase 3: Documentation
 
-- [ ] Document security setup in CONTRIBUTING.md
-- [ ] Add security badge to README
+- [x] Document security setup in CONTRIBUTING.md
+- [x] Add security badge to README
 
 ## Compliance / Validation
 
-- [ ] Pre-commit hooks install and run successfully
-- [ ] Gitleaks catches test secrets in CI
-- [ ] Dependency Review blocks vulnerable dependencies
-- [ ] External PR can pass all checks without secrets
+- [x] Pre-commit hooks install and run successfully
+- [x] Gitleaks catches test secrets in CI
+- [x] Dependency Review blocks vulnerable dependencies
+- [x] External PR can pass all checks without secrets
 
 ---
 
@@ -229,7 +232,7 @@ Fork-friendly security design is appropriate for community-driven documentation 
 
 | Finding | Resolution |
 |---------|------------|
-| Gitleaks allowlist too broad for `/docs/` | Narrowed to example patterns only; real secrets would still be caught |
+| Gitleaks allowlist too broad for `.md` files | Removed global `.md$` exclusion; only specific example patterns allowlisted |
 | Consider SBOM generation | Deferred; overkill for docs site with minimal dependencies |
 | Pre-commit hook installation friction | Added instructions to CONTRIBUTING.md |
 | Link checking for security | Weekly link validation added to prevent malicious link injection |

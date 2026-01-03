@@ -4,11 +4,9 @@
 [extend]
 useDefault = true
 
-# Reduce false positives in documentation
-[allowlist]
-paths = [
-  '''\.md$''',
-]
+# Note: We do NOT globally exclude .md files from scanning.
+# Real secrets in documentation would still be caught.
+# Only specific example patterns are allowlisted below.
 
 # Allow example/placeholder API keys in docs
 [[rules]]

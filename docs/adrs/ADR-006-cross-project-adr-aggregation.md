@@ -241,35 +241,35 @@ ADRs are fetched similarly:
 
 ### Phase 1: Core Aggregation
 
-- [ ] Create `scripts/aggregate_templates.py`
-- [ ] Implement basic fetch and cache
-- [ ] Test with litellm-langfuse-railway
+- [x] Create `scripts/aggregate_templates.py`
+- [x] Implement basic fetch and cache
+- [x] Test with litellm-langfuse-railway
 
 ### Phase 2: Transformation
 
-- [ ] Implement link rewriting
-- [ ] Add source attribution
-- [ ] Handle front matter
+- [x] Implement link rewriting
+- [x] Add source attribution
+- [x] Handle front matter
 
 ### Phase 3: Integration
 
-- [ ] Add to CI workflow
-- [ ] Configure caching in GitHub Actions
-- [ ] Test scheduled builds
+- [x] Add to CI workflow
+- [x] Configure caching in GitHub Actions
+- [x] Test scheduled builds
 
 ### Phase 4: ADR Aggregation
 
-- [ ] Extend script for ADRs
-- [ ] Update navigation
-- [ ] Generate ADR index
+- [ ] Extend script for ADRs (deferred - templates may not have ADRs)
+- [x] Update navigation
+- [ ] Generate ADR index (deferred)
 
 ## Compliance / Validation
 
-- [ ] Aggregation completes without errors
-- [ ] Links in aggregated content work
-- [ ] Images display correctly
-- [ ] Cache speeds up subsequent builds
-- [ ] Errors don't fail the build
+- [x] Aggregation completes without errors
+- [x] Links in aggregated content work
+- [x] Images display correctly
+- [x] Cache speeds up subsequent builds
+- [x] Errors don't fail the build
 
 ---
 

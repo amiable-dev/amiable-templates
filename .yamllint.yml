@@ -1,0 +1,28 @@
+# yamllint configuration
+# See: https://yamllint.readthedocs.io/en/stable/configuration.html
+
+extends: default
+
+rules:
+  # Line length - allow longer lines for descriptions and URLs
+  line-length:
+    max: 200
+    allow-non-breakable-words: true
+    allow-non-breakable-inline-mappings: true
+
+  # Document start - not required for MkDocs/GitHub workflows
+  document-start: disable
+
+  # Truthy values - GitHub Actions uses `on:` which triggers this
+  truthy:
+    allowed-values: ['true', 'false', 'on']
+    check-keys: false
+
+  # Indentation - MkDocs has specific patterns
+  indentation:
+    spaces: 2
+    indent-sequences: whatever
+
+  # Comments - allow inline comments with less spacing
+  comments:
+    min-spaces-from-content: 1

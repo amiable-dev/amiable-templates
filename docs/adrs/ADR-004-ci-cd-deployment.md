@@ -234,35 +234,35 @@ Configure on `main`:
 
 ### Phase 1: Basic Pipeline
 
-- [ ] Create deploy.yml workflow
-- [ ] Configure GitHub Pages in repository settings
-- [ ] Verify deployment works
+- [x] Create deploy.yml workflow
+- [x] Configure GitHub Pages in repository settings
+- [x] Verify deployment works
 
 ### Phase 2: Caching
 
-- [ ] Implement template caching
-- [ ] Optimize build times
-- [ ] Add cache invalidation logic
+- [x] Implement template caching
+- [x] Optimize build times
+- [x] Add cache invalidation logic
 
 ### Phase 3: Security
 
-- [ ] Create security.yml workflow
-- [ ] Configure branch protection
-- [ ] Enable Dependabot
+- [x] Create security.yml workflow
+- [x] Configure branch protection
+- [x] Enable Dependabot
 
 ### Phase 4: Scheduled Builds
 
-- [ ] Enable daily scheduled builds
-- [ ] Add manual trigger with force refresh
-- [ ] Monitor for failures
+- [x] Enable daily scheduled builds
+- [x] Add manual trigger with force refresh
+- [x] Monitor for failures
 
 ## Compliance / Validation
 
-- [ ] Site deploys successfully on merge
-- [ ] Scheduled builds run daily
-- [ ] Manual dispatch works with force refresh
-- [ ] Security checks pass on PRs
-- [ ] Branch protection rules enforced
+- [x] Site deploys successfully on merge
+- [x] Scheduled builds run daily
+- [x] Manual dispatch works with force refresh
+- [x] Security checks pass on PRs
+- [x] Branch protection rules enforced
 
 ---
 

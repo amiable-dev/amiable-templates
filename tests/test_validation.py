@@ -191,6 +191,45 @@ templates:
         assert len(result.semantic_errors) > 0
 
 
+class TestEdgeCases:
+    """Test edge cases and error handling."""
+
+    def test_validate_empty_file_returns_error(self, temp_yaml_file, temp_schema_file):
+        """Empty YAML file should return validation error, not crash."""
+        from scripts.template_manager import validate
+
+        empty_path = temp_yaml_file("")
+        result = validate(empty_path, temp_schema_file)
+        assert result.success is False
+        assert len(result.schema_errors) > 0
+
+    def test_validate_semantic_handles_missing_category_id(self, temp_yaml_file):
+        """Categories without 'id' field should not crash."""
+        from scripts.template_manager import validate_semantic
+
+        invalid_yaml = '''version: "1.0"
+categories:
+  - name: "Missing ID Category"
+
+templates:
+  - id: test-template
+    repo:
+      owner: "test"
+      name: "test"
+    title: "Test"
+    description: "Test"
+    category: test-category
+    directories:
+      docs:
+        - path: "README.md"
+          target: "overview.md"
+'''
+        templates_path = temp_yaml_file(invalid_yaml)
+        # Should not crash
+        errors = validate_semantic(templates_path)
+        assert isinstance(errors, list)
+
+
 class TestValidateWithRealFiles:
     """Test validation against actual project files."""
 

@@ -45,10 +45,15 @@ def get_yaml_handler() -> YAML:
 
 
 def load_yaml(path: Path) -> dict[str, Any]:
-    """Load a YAML file and return its contents."""
+    """Load a YAML file and return its contents.
+
+    Returns empty dict if file is empty or contains no data.
+    """
     yaml = get_yaml_handler()
     with open(path, "r") as f:
-        return yaml.load(f)
+        data = yaml.load(f)
+        # Handle empty files that return None
+        return data if data is not None else {}
 
 
 def validate_schema(templates_path: Path, schema_path: Path) -> list[str]:
@@ -112,9 +117,9 @@ def validate_semantic(
             return errors, warnings
         return errors
 
-    # Get category IDs
+    # Get category IDs (safely handle categories without 'id' field)
     categories = data.get("categories", [])
-    category_ids = {cat["id"] for cat in categories if isinstance(cat, dict)}
+    category_ids = {cat.get("id") for cat in categories if isinstance(cat, dict) and cat.get("id")}
 
     # Get templates and pre-compute all template IDs for O(n) relates_to validation
     templates = data.get("templates", [])

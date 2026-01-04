@@ -168,7 +168,8 @@ def validate_semantic(
             )
 
         # Check relates_to references (O(1) lookup using pre-computed set)
-        relates_to = template.get("relates_to", [])
+        # Use 'or []' to handle explicit null values
+        relates_to = template.get("relates_to") or []
         for rel in relates_to:
             if isinstance(rel, dict):
                 ref_id = rel.get("template_id")
@@ -178,7 +179,8 @@ def validate_semantic(
                     )
 
         # Check for HTTP URLs (should be HTTPS)
-        links = template.get("links", {})
+        # Use 'or {}' to handle explicit null values
+        links = template.get("links") or {}
         if isinstance(links, dict):
             for link_name, url in links.items():
                 if isinstance(url, str) and url.startswith("http://"):

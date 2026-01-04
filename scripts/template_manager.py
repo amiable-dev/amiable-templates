@@ -9,6 +9,8 @@ Usage:
     python scripts/template_manager.py list [--format text|json] [--category CAT] [--tier TIER]
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import re

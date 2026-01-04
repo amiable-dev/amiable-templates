@@ -14,11 +14,21 @@ import json
 import re
 import sys
 from dataclasses import dataclass, field
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
 from ruamel.yaml import YAML
 import jsonschema
+
+
+class SafeJSONEncoder(json.JSONEncoder):
+    """JSON encoder that handles datetime and other special types from ruamel.yaml."""
+
+    def default(self, obj):
+        if isinstance(obj, (datetime, date)):
+            return obj.isoformat()
+        return super().default(obj)
 
 
 # Default paths relative to project root
@@ -76,8 +86,9 @@ def validate_schema(templates_path: Path, schema_path: Path) -> list[str]:
 
     # Convert YAML schema to JSON Schema format
     # ruamel.yaml returns CommentedMap, convert to dict for jsonschema
-    schema_dict = json.loads(json.dumps(dict(schema_data)))
-    templates_dict = json.loads(json.dumps(dict(templates_data)))
+    # Use SafeJSONEncoder to handle datetime objects
+    schema_dict = json.loads(json.dumps(dict(schema_data), cls=SafeJSONEncoder))
+    templates_dict = json.loads(json.dumps(dict(templates_data), cls=SafeJSONEncoder))
 
     validator = jsonschema.Draft7Validator(schema_dict)
     for error in validator.iter_errors(templates_dict):
@@ -282,10 +293,11 @@ def cmd_list(args: argparse.Namespace) -> int:
         print("-" * 97)
 
         for t in templates:
-            template_id = t.get("id", "unknown")[:30]
-            title = t.get("title", "Untitled")[:35]
-            category = t.get("category", "none")[:20]
-            tier = t.get("tier", "none")[:12]
+            # Use 'or' to handle both missing keys and explicit None values
+            template_id = (t.get("id") or "unknown")[:30]
+            title = (t.get("title") or "Untitled")[:35]
+            category = (t.get("category") or "none")[:20]
+            tier = (t.get("tier") or "none")[:12]
             print(f"{template_id:<30} {title:<35} {category:<20} {tier:<12}")
 
         print(f"\nTotal: {len(templates)} template(s)")

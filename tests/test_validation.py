@@ -217,6 +217,19 @@ class TestEdgeCases:
         assert len(result.schema_errors) > 0
         assert "dictionary" in str(result.schema_errors).lower() or "dict" in str(result.schema_errors).lower()
 
+    def test_validate_explicit_null_values_no_crash(self, temp_yaml_file, temp_schema_file):
+        """Explicit null values (categories: null) should not crash."""
+        from scripts.template_manager import validate
+
+        null_yaml = '''version: "1.0"
+categories: null
+templates: null
+'''
+        templates_path = temp_yaml_file(null_yaml)
+        result = validate(templates_path, temp_schema_file)
+        # Should not crash - may pass or fail validation, but shouldn't raise exception
+        assert isinstance(result.success, bool)
+
     def test_validate_semantic_handles_missing_category_id(self, temp_yaml_file):
         """Categories without 'id' field should not crash."""
         from scripts.template_manager import validate_semantic

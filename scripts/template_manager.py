@@ -138,12 +138,13 @@ def validate_semantic(
             return errors, warnings
         return errors
 
-    # Get category IDs (safely handle categories without 'id' field)
-    categories = data.get("categories", [])
+    # Get category IDs (safely handle categories without 'id' field or explicit null)
+    categories = data.get("categories") or []
     category_ids = {cat.get("id") for cat in categories if isinstance(cat, dict) and cat.get("id")}
 
     # Get templates and pre-compute all template IDs for O(n) relates_to validation
-    templates = data.get("templates", [])
+    # Use 'or []' to handle explicit null values (e.g., templates: null)
+    templates = data.get("templates") or []
     all_template_ids = {t.get("id") for t in templates if isinstance(t, dict)}
     seen_ids = set()
 
@@ -267,7 +268,8 @@ def cmd_list(args: argparse.Namespace) -> int:
         print(f"Error loading templates: {e}", file=sys.stderr)
         return 1
 
-    templates = data.get("templates", [])
+    # Use 'or []' to handle explicit null values (e.g., templates: null)
+    templates = data.get("templates") or []
 
     # Apply filters
     if args.category:

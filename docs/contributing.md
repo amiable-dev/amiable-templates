@@ -4,7 +4,7 @@ title: Contributing
 
 # Contributing
 
-Thank you for your interest in contributing to Amiable Templates!
+Thank you for your interest in contributing to amiable-templates!
 
 For detailed contribution guidelines, please see our [CONTRIBUTING.md](https://github.com/amiable-dev/amiable-templates/blob/main/CONTRIBUTING.md) file.
 
@@ -17,9 +17,9 @@ For detailed contribution guidelines, please see our [CONTRIBUTING.md](https://g
 
 ## Ways to Contribute
 
-1. **Add a new template** - Share your Railway deployment configuration
-2. **Improve documentation** - Fix typos, add examples, clarify instructions
-3. **Report issues** - Found a bug or broken link?
+- **Collaborate on templates** - Share your deployment configuration expertise
+- **Improve documentation** - Fix typos, add examples, clarify instructions
+- **Report or fix issues** - Found a bug or broken link?
 
 ## Getting Started
 

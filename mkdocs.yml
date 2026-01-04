@@ -1,4 +1,4 @@
-site_name: Amiable Templates
+site_name: amiable-templates
 site_url: https://amiable-templates.dev
 site_description: Production-ready Railway deployment templates for AI infrastructure
 site_author: Amiable Dev
@@ -7,7 +7,7 @@ repo_name: amiable-dev/amiable-templates
 repo_url: https://github.com/amiable-dev/amiable-templates
 edit_uri: edit/main/docs/
 
-copyright: Copyright &copy; 2024-2026 Amiable Dev
+copyright: Copyright &copy; 2024-2026 amiable-dev
 
 theme:
   name: material
@@ -108,6 +108,7 @@ nav:
     - "ADR-004: CI/CD & Deployment": adrs/ADR-004-ci-cd-deployment.md
     - "ADR-005: DevSecOps": adrs/ADR-005-devsecops-implementation.md
     - "ADR-006: Doc Aggregation": adrs/ADR-006-cross-project-adr-aggregation.md
+    - "ADR-007: Template Tooling": adrs/ADR-007-template-management-tooling.md
   - Contributing: contributing.md
   - Blog: blog/index.md
 

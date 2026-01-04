@@ -19,7 +19,7 @@ Why we chose MkDocs Material over Docusaurus or a custom solution, and how we st
 
 ## The Problem
 
-We needed a documentation site that could showcase Railway deployment templates in a scannable, attractive format. The site also needed to aggregate documentation from multiple template repositories, provide excellent search, support dark/light mode for accessibility, and be easy for contributors to work with.
+We needed a documentation site that could showcase templates in a scannable, attractive format. The site also needed to aggregate documentation from multiple template repositories, provide excellent search, support dark/light mode for accessibility, and be easy for contributors to work with.
 
 Three options emerged: MkDocs Material, Docusaurus, or a custom Next.js/Astro site.
 
@@ -33,7 +33,7 @@ Three options emerged: MkDocs Material, Docusaurus, or a custom Next.js/Astro si
 | Search | Built-in (lunr.js) | Algolia needed | Build it |
 | Dark mode | Built-in | Built-in | Build it |
 
-**Why not Docusaurus?** It's a great framework, but it would introduce React/Node into a Python-focused project. Our aggregation scripts are Python, and having a consistent stack reduces cognitive load.
+**Why not Docusaurus?** It's a great framework, and we use it in our own blog [amiable.dev](https://amiable.dev) but it would introduce React/Node into a Python-focused project. Our aggregation scripts are Python, and having a consistent stack reduces cognitive load.
 
 **Why not custom?** A Next.js or Astro site would give us full control, but it's overkill for documentation. We'd spend weeks building what MkDocs Material gives us out of the box.
 

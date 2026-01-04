@@ -8,7 +8,7 @@ hide:
 <div class="hero" markdown>
   <img src="img/logo.svg" alt="Amiable Templates">
   <h1>amiable-templates</h1>
-  <p>Production-ready Railway deployment templates for AI infrastructure</p>
+  <p>Production-ready deployment templates for AI infrastructure</p>
   <div class="hero-buttons">
     <a href="quickstart/" class="primary">Get Started</a>
     <a href="https://github.com/amiable-dev/amiable-templates" class="secondary">GitHub</a>
@@ -67,13 +67,17 @@ Multi-model consensus system for AI decision-making. Get multiple LLM perspectiv
 | [litellm-langfuse-railway](https://github.com/amiable-dev/litellm-langfuse-railway) | LLM gateway with observability | Stable |
 | [llm-council](https://github.com/amiable-dev/llm-council) | Multi-model consensus | Stable |
 
+!!! info "Full Disclosure"
+    - Some of our templates links are affiliate links. To fund continued support, we may earn a commission if you click through and make a purchase.
+    - Some of our templates are also covered by affiliate programs. We may earn a commission if you click through, deploy and run.
+
 ## Contributing
 
 We welcome contributions! Whether you want to:
 
-- **Add a new template** - Share your Railway deployment configuration
+- **Collaborate on templates** - Share your deployment configuration expertise
 - **Improve documentation** - Fix typos, add examples, clarify instructions
-- **Report issues** - Found a bug or broken link?
+- **Report or fix issues** - Found a bug or broken link?
 
 Check out our [Contributing Guide](contributing.md) to get started.
 

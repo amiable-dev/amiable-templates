@@ -15,14 +15,14 @@ tags:
 
 How we established community standards for amiable-templates using Architecture Decision Records (ADRs) and multi-model AI review.
 
+<!-- more -->
+
 !!! info "What's an ADR?"
     An Architecture Decision Record documents significant technical decisions with context, options considered, and rationale. It creates a searchable history of *why* things are the way they are.
 
-<!-- more -->
-
 ## The Problem
 
-We're building [amiable-templates](https://github.com/amiable-dev/amiable-templates) to aggregate Railway deployment templates into a single documentation portal. Before writing any aggregation code, we needed to answer: *How do we structure an OSS project that invites contribution?*
+We're building [amiable-templates](https://github.com/amiable-dev/amiable-templates) to aggregate deployment templates for AI infrastructure into a single portal. Before writing any aggregation code, we needed to answer: *How do we structure an OSS project that invites contribution?*
 
 Starting from scratch means making a lot of decisions:
 
@@ -33,7 +33,7 @@ Starting from scratch means making a lot of decisions:
 
 ## The Solution: Adopt Proven Patterns
 
-Instead of reinventing the wheel, we adopted the OSS structure from [llm-council](https://github.com/amiable-dev/llm-council), which had already been battle-tested.
+Instead of reinventing the wheel, we borrowed the existing [OSS ADR-033](https://llm-council.dev/adr/ADR-033-oss-community-infrastructure/), which had already been reviewed with the LLM Council and battle-tested for [llm-council.dev](https://llm-council.dev).
 
 ### The Files
 

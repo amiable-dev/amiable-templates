@@ -62,12 +62,18 @@ def load_yaml(path: Path) -> dict[str, Any]:
     """Load a YAML file and return its contents.
 
     Returns empty dict if file is empty or contains no data.
+    Raises ValueError if root is not a dictionary.
     """
     yaml = get_yaml_handler()
     with open(path, "r") as f:
         data = yaml.load(f)
         # Handle empty files that return None
-        return data if data is not None else {}
+        if data is None:
+            return {}
+        # Ensure root is a dictionary
+        if not isinstance(data, dict):
+            raise ValueError(f"YAML root must be a dictionary, got {type(data).__name__}")
+        return data
 
 
 def validate_schema(templates_path: Path, schema_path: Path) -> list[str]:

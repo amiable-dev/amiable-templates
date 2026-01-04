@@ -203,6 +203,20 @@ class TestEdgeCases:
         assert result.success is False
         assert len(result.schema_errors) > 0
 
+    def test_validate_list_root_returns_error(self, temp_yaml_file, temp_schema_file):
+        """YAML with list at root should return validation error, not crash."""
+        from scripts.template_manager import validate
+
+        list_yaml = '''- item1
+- item2
+- item3
+'''
+        templates_path = temp_yaml_file(list_yaml)
+        result = validate(templates_path, temp_schema_file)
+        assert result.success is False
+        assert len(result.schema_errors) > 0
+        assert "dictionary" in str(result.schema_errors).lower() or "dict" in str(result.schema_errors).lower()
+
     def test_validate_semantic_handles_missing_category_id(self, temp_yaml_file):
         """Categories without 'id' field should not crash."""
         from scripts.template_manager import validate_semantic

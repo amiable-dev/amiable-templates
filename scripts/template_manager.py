@@ -170,13 +170,17 @@ def validate_semantic(
         # Check relates_to references (O(1) lookup using pre-computed set)
         # Use 'or []' to handle explicit null values
         relates_to = template.get("relates_to") or []
-        for rel in relates_to:
-            if isinstance(rel, dict):
-                ref_id = rel.get("template_id")
-                if ref_id and ref_id not in all_template_ids:
-                    errors.append(
-                        f"Template '{template_id}' relates_to non-existent template: '{ref_id}'"
-                    )
+        for idx, rel in enumerate(relates_to):
+            if not isinstance(rel, dict):
+                errors.append(
+                    f"Template '{template_id}' has invalid relates_to entry at index {idx}: expected dict, got {type(rel).__name__}"
+                )
+                continue
+            ref_id = rel.get("template_id")
+            if ref_id and ref_id not in all_template_ids:
+                errors.append(
+                    f"Template '{template_id}' relates_to non-existent template: '{ref_id}'"
+                )
 
         # Check for HTTP URLs (should be HTTPS)
         # Use 'or {}' to handle explicit null values
@@ -271,7 +275,9 @@ def cmd_list(args: argparse.Namespace) -> int:
         return 1
 
     # Use 'or []' to handle explicit null values (e.g., templates: null)
-    templates = data.get("templates") or []
+    # Filter for only dict items to handle malformed data gracefully
+    raw_templates = data.get("templates") or []
+    templates = [t for t in raw_templates if isinstance(t, dict)]
 
     # Apply filters
     if args.category:

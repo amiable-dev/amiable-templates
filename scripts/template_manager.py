@@ -116,9 +116,10 @@ def validate_semantic(
     categories = data.get("categories", [])
     category_ids = {cat["id"] for cat in categories if isinstance(cat, dict)}
 
-    # Get templates
+    # Get templates and pre-compute all template IDs for O(n) relates_to validation
     templates = data.get("templates", [])
-    template_ids = set()
+    all_template_ids = {t.get("id") for t in templates if isinstance(t, dict)}
+    seen_ids = set()
 
     for i, template in enumerate(templates):
         if not isinstance(template, dict):
@@ -128,9 +129,9 @@ def validate_semantic(
         template_id = template.get("id", f"<unknown at index {i}>")
 
         # Check for duplicate IDs
-        if template_id in template_ids:
+        if template_id in seen_ids:
             errors.append(f"Duplicate template ID: '{template_id}'")
-        template_ids.add(template_id)
+        seen_ids.add(template_id)
 
         # Check category reference
         category = template.get("category")
@@ -139,18 +140,15 @@ def validate_semantic(
                 f"Template '{template_id}' references non-existent category: '{category}'"
             )
 
-        # Check relates_to references
+        # Check relates_to references (O(1) lookup using pre-computed set)
         relates_to = template.get("relates_to", [])
         for rel in relates_to:
             if isinstance(rel, dict):
                 ref_id = rel.get("template_id")
-                if ref_id and ref_id not in template_ids:
-                    # Check if it exists later in the list
-                    all_template_ids = {t.get("id") for t in templates if isinstance(t, dict)}
-                    if ref_id not in all_template_ids:
-                        errors.append(
-                            f"Template '{template_id}' relates_to non-existent template: '{ref_id}'"
-                        )
+                if ref_id and ref_id not in all_template_ids:
+                    errors.append(
+                        f"Template '{template_id}' relates_to non-existent template: '{ref_id}'"
+                    )
 
         # Check for HTTP URLs (should be HTTPS)
         links = template.get("links", {})
@@ -199,6 +197,10 @@ def cmd_validate(args: argparse.Namespace) -> int:
     if not schema_path.exists():
         print(f"Error: Schema file not found: {schema_path}", file=sys.stderr)
         return 1
+
+    # Check for --deep flag (Level 3 network validation - Phase 4)
+    if args.deep:
+        print("Note: --deep network validation is not yet implemented (ADR-007 Phase 4)")
 
     result = validate(templates_path, schema_path)
 
@@ -251,6 +253,7 @@ def cmd_list(args: argparse.Namespace) -> int:
     # Output format
     if args.format == "json":
         # Convert to clean dict for JSON output
+        # Handle None values safely for list fields
         output = []
         for t in templates:
             output.append({
@@ -259,8 +262,8 @@ def cmd_list(args: argparse.Namespace) -> int:
                 "description": t.get("description"),
                 "category": t.get("category"),
                 "tier": t.get("tier"),
-                "tags": list(t.get("tags", [])),
-                "features": list(t.get("features", [])),
+                "tags": list(t.get("tags") or []),
+                "features": list(t.get("features") or []),
             })
         print(json.dumps(output, indent=2))
     else:

@@ -31,9 +31,11 @@ class SafeJSONEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
-# Default paths relative to project root
-DEFAULT_TEMPLATES_PATH = Path("templates.yaml")
-DEFAULT_SCHEMA_PATH = Path("templates.schema.yaml")
+# Default paths relative to project root (script is in scripts/)
+SCRIPT_DIR = Path(__file__).parent
+PROJECT_ROOT = SCRIPT_DIR.parent
+DEFAULT_TEMPLATES_PATH = PROJECT_ROOT / "templates.yaml"
+DEFAULT_SCHEMA_PATH = PROJECT_ROOT / "templates.schema.yaml"
 
 
 @dataclass
@@ -293,11 +295,11 @@ def cmd_list(args: argparse.Namespace) -> int:
         print("-" * 97)
 
         for t in templates:
-            # Use 'or' to handle both missing keys and explicit None values
-            template_id = (t.get("id") or "unknown")[:30]
-            title = (t.get("title") or "Untitled")[:35]
-            category = (t.get("category") or "none")[:20]
-            tier = (t.get("tier") or "none")[:12]
+            # Convert to string and handle None values for safe slicing
+            template_id = str(t.get("id") or "unknown")[:30]
+            title = str(t.get("title") or "Untitled")[:35]
+            category = str(t.get("category") or "none")[:20]
+            tier = str(t.get("tier") or "none")[:12]
             print(f"{template_id:<30} {title:<35} {category:<20} {tier:<12}")
 
         print(f"\nTotal: {len(templates)} template(s)")

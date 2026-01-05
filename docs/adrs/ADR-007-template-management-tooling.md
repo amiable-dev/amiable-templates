@@ -157,7 +157,7 @@ template-registry/
 
 **SKILL.md Structure:**
 
-```yaml
+```text
 ---
 name: template-registry
 description: |
@@ -178,20 +178,16 @@ allowed-tools: Read, Bash(python:scripts/template_manager.py*)
 ## Quick Operations
 
 ### Validate Registry
-```bash
-python scripts/template_manager.py validate
-```
+    python scripts/template_manager.py validate
 
 ### Add New Template
-```bash
-python scripts/template_manager.py add --interactive --dry-run
-# Review output, then:
-python scripts/template_manager.py add --interactive
-```
+    python scripts/template_manager.py add --interactive --dry-run
+    # Review output, then:
+    python scripts/template_manager.py add --interactive
 
 ## Reference
-For schema definitions, see [schema-reference.md](schema-reference.md)
-For examples, see [examples.md](examples.md)
+For schema definitions, see schema-reference.md
+For examples, see examples.md
 ```
 
 ### 3. Makefile Targets

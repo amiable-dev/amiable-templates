@@ -293,6 +293,6 @@ The CLI includes security protections:
 
 ## See Also
 
-- [CONTRIBUTING.md](../CONTRIBUTING.md) - Contribution guidelines
+- [CONTRIBUTING.md](https://github.com/amiable-dev/amiable-templates/blob/main/CONTRIBUTING.md) - Contribution guidelines
 - [ADR-007](adrs/ADR-007-template-management-tooling.md) - Design documentation
-- [templates.schema.yaml](../templates.schema.yaml) - JSON Schema
+- [templates.schema.yaml](https://github.com/amiable-dev/amiable-templates/blob/main/templates.schema.yaml) - JSON Schema

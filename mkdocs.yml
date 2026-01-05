@@ -110,6 +110,7 @@ nav:
     - "ADR-006: Doc Aggregation": adrs/ADR-006-cross-project-adr-aggregation.md
     - "ADR-007: Template Tooling": adrs/ADR-007-template-management-tooling.md
   - Contributing: contributing.md
+  - Template Management: TEMPLATE_MANAGEMENT.md
   - Blog: blog/index.md
 
 extra:

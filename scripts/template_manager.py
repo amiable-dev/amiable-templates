@@ -62,6 +62,12 @@ class WriteResult:
 # Template ID pattern: lowercase letters, numbers, hyphens, must start with letter
 TEMPLATE_ID_PATTERN = re.compile(r"^[a-z][a-z0-9-]*$")
 
+# GitHub owner/repo patterns (security: prevent injection via malformed names)
+# Owner: alphanumeric and hyphens, 1-39 chars, cannot start/end with hyphen
+GITHUB_OWNER_PATTERN = re.compile(r"^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$")
+# Repo: alphanumeric, hyphens, underscores, dots, 1-100 chars
+GITHUB_REPO_PATTERN = re.compile(r"^[a-zA-Z0-9._-]{1,100}$")
+
 
 def get_yaml_handler() -> YAML:
     """Create a YAML handler configured for comment preservation."""
@@ -103,6 +109,7 @@ def save_yaml(path: Path, data) -> None:
     """Save YAML data preserving comments and formatting.
 
     Uses secure temporary file to prevent symlink attacks.
+    Preserves original file permissions if the file exists.
 
     Args:
         path: Path to write to
@@ -110,15 +117,28 @@ def save_yaml(path: Path, data) -> None:
     """
     import tempfile
     import os
+    import stat
 
     yaml = get_yaml_handler()
+
+    # Get original file permissions if file exists
+    original_mode = None
+    if path.exists():
+        original_mode = stat.S_IMODE(os.stat(path).st_mode)
+
     # Use secure temp file in same directory for atomic rename
-    # tempfile.mkstemp creates file with secure permissions (0600)
     dir_path = path.parent
     fd, temp_path = tempfile.mkstemp(suffix=".yaml.tmp", dir=dir_path)
     try:
         with os.fdopen(fd, "w") as f:
             yaml.dump(data, f)
+
+        # Restore original permissions or use sensible default (0644)
+        if original_mode is not None:
+            os.chmod(temp_path, original_mode)
+        else:
+            os.chmod(temp_path, 0o644)
+
         # Atomic move (works on same filesystem)
         Path(temp_path).replace(path)
     except Exception:
@@ -154,7 +174,20 @@ def validate_schema(templates_path: Path, schema_path: Path) -> list[str]:
     schema_dict = json.loads(json.dumps(dict(schema_data), cls=SafeJSONEncoder))
     templates_dict = json.loads(json.dumps(dict(templates_data), cls=SafeJSONEncoder))
 
-    validator = jsonschema.Draft7Validator(schema_dict)
+    # Create validator with disabled $ref resolution to prevent SSRF
+    # Using a resolver that refuses to resolve remote references
+    from jsonschema import RefResolver
+
+    class NoRemoteRefResolver(RefResolver):
+        """Resolver that refuses to fetch remote references (SSRF prevention)."""
+
+        def resolve_remote(self, uri):
+            raise jsonschema.RefResolutionError(
+                f"Remote $ref resolution disabled for security: {uri}"
+            )
+
+    resolver = NoRemoteRefResolver.from_schema(schema_dict)
+    validator = jsonschema.Draft7Validator(schema_dict, resolver=resolver)
     for error in validator.iter_errors(templates_dict):
         path = ".".join(str(p) for p in error.absolute_path) if error.absolute_path else "root"
         errors.append(f"Schema error at {path}: {error.message}")
@@ -309,6 +342,22 @@ def add_template(
         errors.append(
             f"Invalid template ID '{template_id}': must be lowercase letters, numbers, "
             "and hyphens, starting with a letter"
+        )
+        return WriteResult(success=False, errors=errors)
+
+    # Validate repo_owner (security: prevent injection)
+    if not GITHUB_OWNER_PATTERN.match(repo_owner):
+        errors.append(
+            f"Invalid repo owner '{repo_owner}': must be 1-39 alphanumeric characters or hyphens, "
+            "cannot start or end with hyphen"
+        )
+        return WriteResult(success=False, errors=errors)
+
+    # Validate repo_name (security: prevent injection)
+    if not GITHUB_REPO_PATTERN.match(repo_name):
+        errors.append(
+            f"Invalid repo name '{repo_name}': must be 1-100 alphanumeric characters, hyphens, "
+            "underscores, or dots"
         )
         return WriteResult(success=False, errors=errors)
 

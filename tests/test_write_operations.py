@@ -178,6 +178,68 @@ templates: []
         assert result.success is False
         assert "id" in str(result.errors).lower() or "pattern" in str(result.errors).lower()
 
+    def test_add_validates_repo_owner_format(self, project_root, tmp_path):
+        """add should validate repo owner format (security: prevent injection)."""
+        from scripts.template_manager import add_template
+
+        test_templates = tmp_path / "templates.yaml"
+        test_templates.write_text('''version: "1.0"
+categories:
+  - id: test-category
+    name: "Test"
+templates: []
+''')
+
+        # Test malicious owner with special characters
+        result = add_template(
+            templates_path=test_templates,
+            template_id="test-template",
+            repo_owner="../../../etc",  # Path traversal attempt
+            repo_name="test-repo",
+            title="Test",
+            description="Test",
+            category="test-category",
+        )
+        assert result.success is False
+        assert "owner" in str(result.errors).lower()
+
+        # Test owner starting with hyphen
+        result = add_template(
+            templates_path=test_templates,
+            template_id="test-template",
+            repo_owner="-invalid",
+            repo_name="test-repo",
+            title="Test",
+            description="Test",
+            category="test-category",
+        )
+        assert result.success is False
+
+    def test_add_validates_repo_name_format(self, project_root, tmp_path):
+        """add should validate repo name format (security: prevent injection)."""
+        from scripts.template_manager import add_template
+
+        test_templates = tmp_path / "templates.yaml"
+        test_templates.write_text('''version: "1.0"
+categories:
+  - id: test-category
+    name: "Test"
+templates: []
+''')
+
+        # Test malicious repo name with shell characters
+        result = add_template(
+            templates_path=test_templates,
+            template_id="test-template",
+            repo_owner="test-org",
+            repo_name="repo; rm -rf /",  # Command injection attempt
+            title="Test",
+            description="Test",
+            category="test-category",
+        )
+        assert result.success is False
+        assert "repo" in str(result.errors).lower() or "name" in str(result.errors).lower()
+
 
 class TestUpdateCommand:
     """Test the update subcommand."""

@@ -69,15 +69,25 @@ GITHUB_OWNER_PATTERN = re.compile(r"^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9]
 GITHUB_REPO_PATTERN = re.compile(r"^[a-zA-Z0-9._-]{1,100}$")
 
 
-def get_yaml_handler() -> YAML:
-    """Create a YAML handler configured for comment preservation."""
-    yaml = YAML()
+def get_yaml_handler(safe_mode: bool = False) -> YAML:
+    """Create a YAML handler configured for comment preservation.
+
+    Args:
+        safe_mode: If True, use safe loader and add DoS protections.
+                   Use for untrusted input (validation path).
+    """
+    if safe_mode:
+        yaml = YAML(typ='safe')
+    else:
+        yaml = YAML()
     yaml.preserve_quotes = True
     yaml.default_flow_style = False
+    # Security: Prevent duplicate-key shadowing attacks
+    yaml.allow_duplicate_keys = False
     return yaml
 
 
-def load_yaml(path: Path) -> dict[str, Any]:
+def load_yaml(path: Path, safe_mode: bool = True) -> dict[str, Any]:
     """Load a YAML file and return its contents.
 
     Returns empty dict if file is empty or contains no data.
@@ -85,11 +95,15 @@ def load_yaml(path: Path) -> dict[str, Any]:
     Raises ValueError if path is a symlink (security: prevent LFI attacks).
 
     Uses O_NOFOLLOW to prevent TOCTOU race conditions with symlinks.
+
+    Args:
+        path: Path to YAML file
+        safe_mode: If True, use safe loader (default for validation).
     """
     import os
     import errno
 
-    yaml = get_yaml_handler()
+    yaml = get_yaml_handler(safe_mode=safe_mode)
 
     # Security: Use O_NOFOLLOW to atomically reject symlinks (prevents TOCTOU)
     # This is safer than checking is_symlink() then open() - no race window
@@ -100,8 +114,15 @@ def load_yaml(path: Path) -> dict[str, Any]:
             raise ValueError(f"Refusing to read symlink for security: {path}")
         raise
 
+    # Properly handle fd to avoid leaks if fdopen fails
     try:
-        with os.fdopen(fd, "r") as f:
+        f = os.fdopen(fd, "r")
+    except Exception:
+        os.close(fd)  # Close fd if fdopen failed to take ownership
+        raise
+
+    try:
+        with f:
             data = yaml.load(f)
             # Handle empty files that return None
             if data is None:
@@ -111,8 +132,6 @@ def load_yaml(path: Path) -> dict[str, Any]:
                 raise ValueError(f"YAML root must be a dictionary, got {type(data).__name__}")
             return data
     except Exception:
-        # fdopen takes ownership of fd on success, but if yaml.load fails we need cleanup
-        # Note: fdopen closes fd on success, so we only need to handle exceptions
         raise
 
 
@@ -123,11 +142,13 @@ def load_yaml_raw(path: Path):
     Raises ValueError if path is a symlink (security: prevent LFI attacks).
 
     Uses O_NOFOLLOW to prevent TOCTOU race conditions with symlinks.
+    Uses round-trip mode (not safe) to preserve comments for editing.
     """
     import os
     import errno
 
-    yaml = get_yaml_handler()
+    # Use round-trip mode for comment preservation (needed for write operations)
+    yaml = get_yaml_handler(safe_mode=False)
 
     # Security: Use O_NOFOLLOW to atomically reject symlinks (prevents TOCTOU)
     try:
@@ -137,7 +158,14 @@ def load_yaml_raw(path: Path):
             raise ValueError(f"Refusing to read symlink for security: {path}")
         raise
 
-    with os.fdopen(fd, "r") as f:
+    # Properly handle fd to avoid leaks if fdopen fails
+    try:
+        f = os.fdopen(fd, "r")
+    except Exception:
+        os.close(fd)  # Close fd if fdopen failed to take ownership
+        raise
+
+    with f:
         return yaml.load(f)
 
 

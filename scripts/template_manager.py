@@ -50,6 +50,19 @@ class ValidationResult:
     warnings: list[str] = field(default_factory=list)
 
 
+@dataclass
+class WriteResult:
+    """Result of write operations (add, update, remove)."""
+
+    success: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+
+
+# Template ID pattern: lowercase letters, numbers, hyphens, must start with letter
+TEMPLATE_ID_PATTERN = re.compile(r"^[a-z][a-z0-9-]*$")
+
+
 def get_yaml_handler() -> YAML:
     """Create a YAML handler configured for comment preservation."""
     yaml = YAML()
@@ -74,6 +87,38 @@ def load_yaml(path: Path) -> dict[str, Any]:
         if not isinstance(data, dict):
             raise ValueError(f"YAML root must be a dictionary, got {type(data).__name__}")
         return data
+
+
+def load_yaml_raw(path: Path):
+    """Load YAML preserving ruamel.yaml structure for comment preservation.
+
+    Returns the raw ruamel.yaml CommentedMap for modification.
+    """
+    yaml = get_yaml_handler()
+    with open(path, "r") as f:
+        return yaml.load(f)
+
+
+def save_yaml(path: Path, data) -> None:
+    """Save YAML data preserving comments and formatting.
+
+    Args:
+        path: Path to write to
+        data: ruamel.yaml CommentedMap or dict to save
+    """
+    yaml = get_yaml_handler()
+    # Write to temp file first for atomic operation
+    temp_path = path.with_suffix(".yaml.tmp")
+    try:
+        with open(temp_path, "w") as f:
+            yaml.dump(data, f)
+        # Atomic move
+        temp_path.replace(path)
+    except Exception:
+        # Clean up temp file on error
+        if temp_path.exists():
+            temp_path.unlink()
+        raise
 
 
 def validate_schema(templates_path: Path, schema_path: Path) -> list[str]:
@@ -218,6 +263,263 @@ def validate(templates_path: Path, schema_path: Path) -> ValidationResult:
     )
 
 
+def add_template(
+    templates_path: Path,
+    template_id: str,
+    repo_owner: str,
+    repo_name: str,
+    title: str,
+    description: str,
+    category: str,
+    tier: str = "starter",
+    tags: list[str] | None = None,
+    features: list[str] | None = None,
+) -> WriteResult:
+    """Add a new template to the registry.
+
+    Args:
+        templates_path: Path to templates.yaml
+        template_id: Unique template identifier
+        repo_owner: GitHub repository owner
+        repo_name: GitHub repository name
+        title: Display title
+        description: Brief description
+        category: Category ID reference
+        tier: Template tier (starter, production, stable, beta, experimental)
+        tags: Optional list of tags
+        features: Optional list of features
+
+    Returns:
+        WriteResult indicating success or failure
+    """
+    errors = []
+    warnings = []
+
+    # Validate template ID format
+    if not TEMPLATE_ID_PATTERN.match(template_id):
+        errors.append(
+            f"Invalid template ID '{template_id}': must be lowercase letters, numbers, "
+            "and hyphens, starting with a letter"
+        )
+        return WriteResult(success=False, errors=errors)
+
+    try:
+        data = load_yaml_raw(templates_path)
+    except Exception as e:
+        return WriteResult(success=False, errors=[f"Failed to load YAML: {e}"])
+
+    # Handle None data
+    if data is None:
+        data = {}
+
+    # Get existing templates and categories
+    templates = data.get("templates") or []
+    categories = data.get("categories") or []
+
+    # Check for duplicate ID
+    existing_ids = {t.get("id") for t in templates if isinstance(t, dict)}
+    if template_id in existing_ids:
+        errors.append(f"Template with ID '{template_id}' already exists")
+        return WriteResult(success=False, errors=errors)
+
+    # Check category exists
+    category_ids = {c.get("id") for c in categories if isinstance(c, dict)}
+    if category not in category_ids:
+        errors.append(f"Category '{category}' does not exist")
+        return WriteResult(success=False, errors=errors)
+
+    # Build new template entry
+    from ruamel.yaml.comments import CommentedMap, CommentedSeq
+
+    new_template = CommentedMap()
+    new_template["id"] = template_id
+    new_template["repo"] = CommentedMap([("owner", repo_owner), ("name", repo_name)])
+    new_template["title"] = title
+    new_template["description"] = description
+    new_template["category"] = category
+    new_template["tier"] = tier
+
+    # Add directories with minimal required structure
+    docs_entry = CommentedMap([("path", "README.md"), ("target", "overview.md")])
+    new_template["directories"] = CommentedMap([("docs", CommentedSeq([docs_entry]))])
+
+    if tags:
+        new_template["tags"] = CommentedSeq(tags)
+    if features:
+        new_template["features"] = CommentedSeq(features)
+
+    # Add links
+    new_template["links"] = CommentedMap([
+        ("github", f"https://github.com/{repo_owner}/{repo_name}")
+    ])
+
+    # Append to templates list
+    if not isinstance(templates, list):
+        templates = []
+    templates.append(new_template)
+    data["templates"] = templates
+
+    # Save
+    try:
+        save_yaml(templates_path, data)
+    except Exception as e:
+        return WriteResult(success=False, errors=[f"Failed to save YAML: {e}"])
+
+    return WriteResult(success=True, warnings=warnings)
+
+
+def update_template(
+    templates_path: Path,
+    template_id: str,
+    title: str | None = None,
+    description: str | None = None,
+    category: str | None = None,
+    tier: str | None = None,
+    tags: list[str] | None = None,
+    features: list[str] | None = None,
+) -> WriteResult:
+    """Update an existing template's fields.
+
+    Only fields that are provided (not None) will be updated.
+
+    Args:
+        templates_path: Path to templates.yaml
+        template_id: ID of template to update
+        title: New title (optional)
+        description: New description (optional)
+        category: New category (optional)
+        tier: New tier (optional)
+        tags: New tags (optional)
+        features: New features (optional)
+
+    Returns:
+        WriteResult indicating success or failure
+    """
+    errors = []
+    warnings = []
+
+    try:
+        data = load_yaml_raw(templates_path)
+    except Exception as e:
+        return WriteResult(success=False, errors=[f"Failed to load YAML: {e}"])
+
+    if data is None:
+        return WriteResult(success=False, errors=["Templates file is empty"])
+
+    templates = data.get("templates") or []
+    categories = data.get("categories") or []
+    category_ids = {c.get("id") for c in categories if isinstance(c, dict)}
+
+    # Find template
+    template_index = None
+    for i, t in enumerate(templates):
+        if isinstance(t, dict) and t.get("id") == template_id:
+            template_index = i
+            break
+
+    if template_index is None:
+        return WriteResult(success=False, errors=[f"Template '{template_id}' not found"])
+
+    template = templates[template_index]
+
+    # Validate category if changing
+    if category is not None and category not in category_ids:
+        errors.append(f"Category '{category}' does not exist")
+        return WriteResult(success=False, errors=errors)
+
+    # Update fields
+    if title is not None:
+        template["title"] = title
+    if description is not None:
+        template["description"] = description
+    if category is not None:
+        template["category"] = category
+    if tier is not None:
+        template["tier"] = tier
+    if tags is not None:
+        from ruamel.yaml.comments import CommentedSeq
+        template["tags"] = CommentedSeq(tags)
+    if features is not None:
+        from ruamel.yaml.comments import CommentedSeq
+        template["features"] = CommentedSeq(features)
+
+    # Save
+    try:
+        save_yaml(templates_path, data)
+    except Exception as e:
+        return WriteResult(success=False, errors=[f"Failed to save YAML: {e}"])
+
+    return WriteResult(success=True, warnings=warnings)
+
+
+def remove_template(
+    templates_path: Path,
+    template_id: str,
+    force: bool = False,
+) -> WriteResult:
+    """Remove a template from the registry.
+
+    Args:
+        templates_path: Path to templates.yaml
+        template_id: ID of template to remove
+        force: If True, skip reference check warnings
+
+    Returns:
+        WriteResult indicating success or failure
+    """
+    errors = []
+    warnings = []
+
+    try:
+        data = load_yaml_raw(templates_path)
+    except Exception as e:
+        return WriteResult(success=False, errors=[f"Failed to load YAML: {e}"])
+
+    if data is None:
+        return WriteResult(success=False, errors=["Templates file is empty"])
+
+    templates = data.get("templates") or []
+
+    # Find template index
+    template_index = None
+    for i, t in enumerate(templates):
+        if isinstance(t, dict) and t.get("id") == template_id:
+            template_index = i
+            break
+
+    if template_index is None:
+        return WriteResult(success=False, errors=[f"Template '{template_id}' not found"])
+
+    # Check for references from other templates
+    if not force:
+        referencing = []
+        for t in templates:
+            if not isinstance(t, dict):
+                continue
+            relates_to = t.get("relates_to") or []
+            for rel in relates_to:
+                if isinstance(rel, dict) and rel.get("template_id") == template_id:
+                    referencing.append(t.get("id", "<unknown>"))
+        if referencing:
+            warnings.append(
+                f"Template '{template_id}' is referenced by: {', '.join(referencing)}. "
+                "Use --force to remove anyway."
+            )
+            return WriteResult(success=False, errors=[], warnings=warnings)
+
+    # Remove template
+    del templates[template_index]
+    data["templates"] = templates
+
+    # Save
+    try:
+        save_yaml(templates_path, data)
+    except Exception as e:
+        return WriteResult(success=False, errors=[f"Failed to save YAML: {e}"])
+
+    return WriteResult(success=True, warnings=warnings)
+
+
 def cmd_validate(args: argparse.Namespace) -> int:
     """Handle the validate subcommand."""
     templates_path = Path(args.templates) if args.templates else DEFAULT_TEMPLATES_PATH
@@ -325,6 +627,120 @@ def cmd_list(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_add(args: argparse.Namespace) -> int:
+    """Handle the add subcommand."""
+    templates_path = Path(args.templates) if args.templates else DEFAULT_TEMPLATES_PATH
+
+    if not templates_path.exists():
+        print(f"Error: Templates file not found: {templates_path}", file=sys.stderr)
+        return 1
+
+    # Parse repo argument
+    repo_parts = args.repo.split("/")
+    if len(repo_parts) != 2:
+        print(f"Error: Invalid repo format '{args.repo}'. Expected 'owner/name'", file=sys.stderr)
+        return 1
+    repo_owner, repo_name = repo_parts
+
+    # Parse optional lists
+    tags = [t.strip() for t in args.tags.split(",")] if args.tags else None
+    features = [f.strip() for f in args.features.split(",")] if args.features else None
+
+    result = add_template(
+        templates_path=templates_path,
+        template_id=args.id,
+        repo_owner=repo_owner,
+        repo_name=repo_name,
+        title=args.title,
+        description=args.description,
+        category=args.category,
+        tier=args.tier,
+        tags=tags,
+        features=features,
+    )
+
+    if result.errors:
+        for error in result.errors:
+            print(f"Error: {error}", file=sys.stderr)
+
+    if result.warnings:
+        for warning in result.warnings:
+            print(f"Warning: {warning}", file=sys.stderr)
+
+    if result.success:
+        print(f"Added template '{args.id}' to {templates_path}")
+        return 0
+    else:
+        return 1
+
+
+def cmd_update(args: argparse.Namespace) -> int:
+    """Handle the update subcommand."""
+    templates_path = Path(args.templates) if args.templates else DEFAULT_TEMPLATES_PATH
+
+    if not templates_path.exists():
+        print(f"Error: Templates file not found: {templates_path}", file=sys.stderr)
+        return 1
+
+    # Parse optional lists
+    tags = [t.strip() for t in args.tags.split(",")] if args.tags else None
+    features = [f.strip() for f in args.features.split(",")] if args.features else None
+
+    result = update_template(
+        templates_path=templates_path,
+        template_id=args.id,
+        title=args.title,
+        description=args.description,
+        category=args.category,
+        tier=args.tier,
+        tags=tags,
+        features=features,
+    )
+
+    if result.errors:
+        for error in result.errors:
+            print(f"Error: {error}", file=sys.stderr)
+
+    if result.warnings:
+        for warning in result.warnings:
+            print(f"Warning: {warning}", file=sys.stderr)
+
+    if result.success:
+        print(f"Updated template '{args.id}'")
+        return 0
+    else:
+        return 1
+
+
+def cmd_remove(args: argparse.Namespace) -> int:
+    """Handle the remove subcommand."""
+    templates_path = Path(args.templates) if args.templates else DEFAULT_TEMPLATES_PATH
+
+    if not templates_path.exists():
+        print(f"Error: Templates file not found: {templates_path}", file=sys.stderr)
+        return 1
+
+    result = remove_template(
+        templates_path=templates_path,
+        template_id=args.id,
+        force=args.force,
+    )
+
+    if result.errors:
+        for error in result.errors:
+            print(f"Error: {error}", file=sys.stderr)
+
+    if result.warnings:
+        for warning in result.warnings:
+            print(f"Warning: {warning}", file=sys.stderr)
+
+    if result.success:
+        print(f"Removed template '{args.id}'")
+        return 0
+    else:
+        return 1
+
+
 def main() -> int:
     """Main entry point for the CLI."""
     parser = argparse.ArgumentParser(
@@ -377,6 +793,116 @@ def main() -> int:
         help=f"Path to templates.yaml (default: {DEFAULT_TEMPLATES_PATH})",
     )
     list_parser.set_defaults(func=cmd_list)
+
+    # add subcommand
+    add_parser = subparsers.add_parser(
+        "add",
+        help="Add a new template to the registry",
+    )
+    add_parser.add_argument(
+        "--id",
+        required=True,
+        help="Unique template identifier (lowercase, hyphens allowed)",
+    )
+    add_parser.add_argument(
+        "--repo",
+        required=True,
+        help="GitHub repository (format: owner/name)",
+    )
+    add_parser.add_argument(
+        "--title",
+        required=True,
+        help="Display title for the template",
+    )
+    add_parser.add_argument(
+        "--description",
+        required=True,
+        help="Brief description of the template",
+    )
+    add_parser.add_argument(
+        "--category",
+        required=True,
+        help="Category ID reference",
+    )
+    add_parser.add_argument(
+        "--tier",
+        default="starter",
+        choices=["starter", "production", "stable", "beta", "experimental"],
+        help="Template tier (default: starter)",
+    )
+    add_parser.add_argument(
+        "--tags",
+        help="Comma-separated list of tags",
+    )
+    add_parser.add_argument(
+        "--features",
+        help="Comma-separated list of features",
+    )
+    add_parser.add_argument(
+        "--templates",
+        help=f"Path to templates.yaml (default: {DEFAULT_TEMPLATES_PATH})",
+    )
+    add_parser.set_defaults(func=cmd_add)
+
+    # update subcommand
+    update_parser = subparsers.add_parser(
+        "update",
+        help="Update an existing template",
+    )
+    update_parser.add_argument(
+        "id",
+        help="Template ID to update",
+    )
+    update_parser.add_argument(
+        "--title",
+        help="New title",
+    )
+    update_parser.add_argument(
+        "--description",
+        help="New description",
+    )
+    update_parser.add_argument(
+        "--category",
+        help="New category",
+    )
+    update_parser.add_argument(
+        "--tier",
+        choices=["starter", "production", "stable", "beta", "experimental"],
+        help="New tier",
+    )
+    update_parser.add_argument(
+        "--tags",
+        help="Comma-separated list of new tags",
+    )
+    update_parser.add_argument(
+        "--features",
+        help="Comma-separated list of new features",
+    )
+    update_parser.add_argument(
+        "--templates",
+        help=f"Path to templates.yaml (default: {DEFAULT_TEMPLATES_PATH})",
+    )
+    update_parser.set_defaults(func=cmd_update)
+
+    # remove subcommand
+    remove_parser = subparsers.add_parser(
+        "remove",
+        help="Remove a template from the registry",
+    )
+    remove_parser.add_argument(
+        "id",
+        help="Template ID to remove",
+    )
+    remove_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force removal even if referenced by other templates",
+    )
+    remove_parser.add_argument(
+        "--templates",
+        help=f"Path to templates.yaml (default: {DEFAULT_TEMPLATES_PATH})",
+    )
+    remove_parser.set_defaults(func=cmd_remove)
 
     args = parser.parse_args()
 

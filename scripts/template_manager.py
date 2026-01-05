@@ -83,22 +83,37 @@ def load_yaml(path: Path) -> dict[str, Any]:
     Returns empty dict if file is empty or contains no data.
     Raises ValueError if root is not a dictionary.
     Raises ValueError if path is a symlink (security: prevent LFI attacks).
+
+    Uses O_NOFOLLOW to prevent TOCTOU race conditions with symlinks.
     """
-    # Security: reject symlinks to prevent Local File Inclusion (LFI) attacks
-    # In CI/CD, malicious PRs could use symlinks to exfiltrate secrets
-    if path.is_symlink():
-        raise ValueError(f"Refusing to read symlink for security: {path}")
+    import os
+    import errno
 
     yaml = get_yaml_handler()
-    with open(path, "r") as f:
-        data = yaml.load(f)
-        # Handle empty files that return None
-        if data is None:
-            return {}
-        # Ensure root is a dictionary
-        if not isinstance(data, dict):
-            raise ValueError(f"YAML root must be a dictionary, got {type(data).__name__}")
-        return data
+
+    # Security: Use O_NOFOLLOW to atomically reject symlinks (prevents TOCTOU)
+    # This is safer than checking is_symlink() then open() - no race window
+    try:
+        fd = os.open(str(path), os.O_RDONLY | os.O_NOFOLLOW)
+    except OSError as e:
+        if e.errno == errno.ELOOP:
+            raise ValueError(f"Refusing to read symlink for security: {path}")
+        raise
+
+    try:
+        with os.fdopen(fd, "r") as f:
+            data = yaml.load(f)
+            # Handle empty files that return None
+            if data is None:
+                return {}
+            # Ensure root is a dictionary
+            if not isinstance(data, dict):
+                raise ValueError(f"YAML root must be a dictionary, got {type(data).__name__}")
+            return data
+    except Exception:
+        # fdopen takes ownership of fd on success, but if yaml.load fails we need cleanup
+        # Note: fdopen closes fd on success, so we only need to handle exceptions
+        raise
 
 
 def load_yaml_raw(path: Path):
@@ -106,13 +121,23 @@ def load_yaml_raw(path: Path):
 
     Returns the raw ruamel.yaml CommentedMap for modification.
     Raises ValueError if path is a symlink (security: prevent LFI attacks).
+
+    Uses O_NOFOLLOW to prevent TOCTOU race conditions with symlinks.
     """
-    # Security: reject symlinks to prevent Local File Inclusion (LFI) attacks
-    if path.is_symlink():
-        raise ValueError(f"Refusing to read symlink for security: {path}")
+    import os
+    import errno
 
     yaml = get_yaml_handler()
-    with open(path, "r") as f:
+
+    # Security: Use O_NOFOLLOW to atomically reject symlinks (prevents TOCTOU)
+    try:
+        fd = os.open(str(path), os.O_RDONLY | os.O_NOFOLLOW)
+    except OSError as e:
+        if e.errno == errno.ELOOP:
+            raise ValueError(f"Refusing to read symlink for security: {path}")
+        raise
+
+    with os.fdopen(fd, "r") as f:
         return yaml.load(f)
 
 
@@ -121,7 +146,7 @@ def save_yaml(path: Path, data) -> None:
 
     Uses secure temporary file to prevent symlink attacks.
     Preserves original file permissions if the file exists.
-    Uses atomic operations to prevent TOCTOU race conditions.
+    Uses O_NOFOLLOW for atomic symlink rejection (no TOCTOU race).
 
     Args:
         path: Path to write to
@@ -130,15 +155,12 @@ def save_yaml(path: Path, data) -> None:
     import tempfile
     import os
     import stat
+    import errno
 
     yaml = get_yaml_handler()
 
-    # Security: reject symlinks to prevent symlink race attacks
-    if path.exists() and path.is_symlink():
-        raise ValueError(f"Refusing to write to symlink for security: {path}")
-
     # Get original file permissions atomically using O_NOFOLLOW to prevent TOCTOU
-    # O_NOFOLLOW ensures we don't follow symlinks that could be swapped in
+    # O_NOFOLLOW ensures we don't follow symlinks - raises ELOOP if symlink
     original_mode = None
     if path.exists():
         try:
@@ -148,8 +170,10 @@ def save_yaml(path: Path, data) -> None:
                 original_mode = stat.S_IMODE(os.fstat(check_fd).st_mode)
             finally:
                 os.close(check_fd)
-        except OSError:
-            # If O_NOFOLLOW fails (symlink or permission issue), use default mode
+        except OSError as e:
+            if e.errno == errno.ELOOP:
+                raise ValueError(f"Refusing to write to symlink for security: {path}")
+            # For other errors (permission denied, etc.), use default mode
             original_mode = None
 
     # Use secure temp file in same directory for atomic rename

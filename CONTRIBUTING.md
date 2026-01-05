@@ -118,6 +118,11 @@ We follow conventional commit format:
 [optional body]
 ```
 
+**Use the commit template** (optional but recommended):
+```bash
+git config commit.template .gitmessage
+```
+
 **Types:**
 - `feat`: New feature or template
 - `fix`: Bug fix

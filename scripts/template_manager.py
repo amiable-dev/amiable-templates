@@ -362,6 +362,109 @@ def validate_semantic(
     return errors
 
 
+def validate_network(
+    templates_path: Path,
+    timeout: float = 10.0,
+    max_concurrent: int = 5,
+) -> list[str]:
+    """Validate network reachability of URLs (Level 3).
+
+    Checks:
+    - URL reachability via HEAD requests
+    - GitHub repository existence
+
+    Args:
+        templates_path: Path to templates.yaml
+        timeout: Request timeout in seconds
+        max_concurrent: Maximum concurrent requests
+
+    Returns:
+        List of warning messages (network issues are warnings, not errors)
+    """
+    import urllib.request
+    import urllib.error
+    import ssl
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    warnings = []
+
+    try:
+        data = load_yaml(templates_path)
+    except Exception as e:
+        return [f"Failed to load YAML for network validation: {e}"]
+
+    templates = data.get("templates") or []
+
+    # Collect all URLs to check
+    urls_to_check: list[tuple[str, str, str]] = []  # (template_id, url_type, url)
+
+    for template in templates:
+        if not isinstance(template, dict):
+            continue
+
+        template_id = template.get("id", "<unknown>")
+
+        # Check links
+        links = template.get("links") or {}
+        if isinstance(links, dict):
+            for link_type, url in links.items():
+                if isinstance(url, str) and url.startswith("https://"):
+                    urls_to_check.append((template_id, f"links.{link_type}", url))
+
+        # Check GitHub repo (construct URL from repo info)
+        repo = template.get("repo")
+        if isinstance(repo, dict):
+            owner = repo.get("owner")
+            name = repo.get("name")
+            if owner and name:
+                github_url = f"https://github.com/{owner}/{name}"
+                urls_to_check.append((template_id, "repo", github_url))
+
+    if not urls_to_check:
+        return []
+
+    def check_url(item: tuple[str, str, str]) -> str | None:
+        """Check a single URL, return warning message or None."""
+        template_id, url_type, url = item
+
+        # Create SSL context that doesn't verify (for speed, not security-critical)
+        ctx = ssl.create_default_context()
+
+        try:
+            req = urllib.request.Request(
+                url,
+                method="HEAD",
+                headers={"User-Agent": "amiable-template-manager/1.0"}
+            )
+            with urllib.request.urlopen(req, timeout=timeout, context=ctx) as response:
+                if response.status >= 400:
+                    return f"Template '{template_id}' {url_type} returned {response.status}: {url}"
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return f"Template '{template_id}' {url_type} not found (404): {url}"
+            elif e.code >= 400:
+                return f"Template '{template_id}' {url_type} returned {e.code}: {url}"
+        except urllib.error.URLError as e:
+            return f"Template '{template_id}' {url_type} unreachable: {url} ({e.reason})"
+        except TimeoutError:
+            return f"Template '{template_id}' {url_type} timed out: {url}"
+        except Exception as e:
+            return f"Template '{template_id}' {url_type} check failed: {url} ({e})"
+
+        return None
+
+    # Check URLs concurrently
+    with ThreadPoolExecutor(max_workers=max_concurrent) as executor:
+        futures = {executor.submit(check_url, item): item for item in urls_to_check}
+
+        for future in as_completed(futures):
+            result = future.result()
+            if result:
+                warnings.append(result)
+
+    return warnings
+
+
 def validate(templates_path: Path, schema_path: Path) -> ValidationResult:
     """Run all validation levels.
 
@@ -669,10 +772,6 @@ def cmd_validate(args: argparse.Namespace) -> int:
         print(f"Error: Schema file not found: {schema_path}", file=sys.stderr)
         return 1
 
-    # Check for --deep flag (Level 3 network validation - Phase 4)
-    if args.deep:
-        print("Note: --deep network validation is not yet implemented (ADR-007 Phase 4)")
-
     result = validate(templates_path, schema_path)
 
     if result.schema_errors:
@@ -689,6 +788,18 @@ def cmd_validate(args: argparse.Namespace) -> int:
         print("Warnings:", file=sys.stderr)
         for warning in result.warnings:
             print(f"  - {warning}", file=sys.stderr)
+
+    # Level 3: Network validation (--deep flag)
+    network_warnings = []
+    if args.deep:
+        print("Running network validation (Level 3)...")
+        network_warnings = validate_network(templates_path)
+        if network_warnings:
+            print("Network warnings:", file=sys.stderr)
+            for warning in network_warnings:
+                print(f"  - {warning}", file=sys.stderr)
+        else:
+            print("All URLs reachable.")
 
     if result.success:
         print(f"Validation passed: {templates_path}")

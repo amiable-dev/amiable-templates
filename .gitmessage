@@ -1,0 +1,32 @@
+# Commit Message Template for amiable-templates
+#
+# Format: <type>(<scope>): <subject>
+#
+# Types:
+#   feat     - New template or feature
+#   fix      - Bug fix
+#   docs     - Documentation only
+#   style    - Formatting, no code change
+#   refactor - Code change that neither fixes nor adds
+#   test     - Adding tests
+#   chore    - Maintenance tasks
+#
+# Scopes (optional):
+#   template - Template registry changes
+#   adr      - Architecture Decision Records
+#   ci       - CI/CD changes
+#   deps     - Dependency updates
+#
+# Examples:
+#   feat(template): add litellm-langfuse-starter to registry
+#   fix(template): correct category for my-template
+#   docs: update TEMPLATE_MANAGEMENT.md guide
+#   chore(deps): update ruamel.yaml to 0.18.x
+#
+# Template Registry Operations:
+#   feat(template): add <template-id> to registry
+#   feat(template): update <template-id> tier to production
+#   fix(template): remove deprecated <template-id>
+#
+# ---- Delete above this line ----
+

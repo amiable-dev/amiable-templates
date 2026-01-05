@@ -82,7 +82,13 @@ def load_yaml(path: Path) -> dict[str, Any]:
 
     Returns empty dict if file is empty or contains no data.
     Raises ValueError if root is not a dictionary.
+    Raises ValueError if path is a symlink (security: prevent LFI attacks).
     """
+    # Security: reject symlinks to prevent Local File Inclusion (LFI) attacks
+    # In CI/CD, malicious PRs could use symlinks to exfiltrate secrets
+    if path.is_symlink():
+        raise ValueError(f"Refusing to read symlink for security: {path}")
+
     yaml = get_yaml_handler()
     with open(path, "r") as f:
         data = yaml.load(f)
@@ -99,7 +105,12 @@ def load_yaml_raw(path: Path):
     """Load YAML preserving ruamel.yaml structure for comment preservation.
 
     Returns the raw ruamel.yaml CommentedMap for modification.
+    Raises ValueError if path is a symlink (security: prevent LFI attacks).
     """
+    # Security: reject symlinks to prevent Local File Inclusion (LFI) attacks
+    if path.is_symlink():
+        raise ValueError(f"Refusing to read symlink for security: {path}")
+
     yaml = get_yaml_handler()
     with open(path, "r") as f:
         return yaml.load(f)
@@ -110,6 +121,7 @@ def save_yaml(path: Path, data) -> None:
 
     Uses secure temporary file to prevent symlink attacks.
     Preserves original file permissions if the file exists.
+    Uses atomic operations to prevent TOCTOU race conditions.
 
     Args:
         path: Path to write to
@@ -121,10 +133,24 @@ def save_yaml(path: Path, data) -> None:
 
     yaml = get_yaml_handler()
 
-    # Get original file permissions if file exists
+    # Security: reject symlinks to prevent symlink race attacks
+    if path.exists() and path.is_symlink():
+        raise ValueError(f"Refusing to write to symlink for security: {path}")
+
+    # Get original file permissions atomically using O_NOFOLLOW to prevent TOCTOU
+    # O_NOFOLLOW ensures we don't follow symlinks that could be swapped in
     original_mode = None
     if path.exists():
-        original_mode = stat.S_IMODE(os.stat(path).st_mode)
+        try:
+            # Open without following symlinks and get mode from fd (atomic)
+            check_fd = os.open(str(path), os.O_RDONLY | os.O_NOFOLLOW)
+            try:
+                original_mode = stat.S_IMODE(os.fstat(check_fd).st_mode)
+            finally:
+                os.close(check_fd)
+        except OSError:
+            # If O_NOFOLLOW fails (symlink or permission issue), use default mode
+            original_mode = None
 
     # Use secure temp file in same directory for atomic rename
     dir_path = path.parent

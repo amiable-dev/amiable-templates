@@ -241,6 +241,44 @@ templates: []
         assert "repo" in str(result.errors).lower() or "name" in str(result.errors).lower()
 
 
+class TestSecurityHardening:
+    """Test security hardening features."""
+
+    def test_load_yaml_rejects_symlinks(self, tmp_path):
+        """load_yaml should reject symlinks to prevent LFI attacks."""
+        from scripts.template_manager import load_yaml
+
+        # Create a real file and a symlink to it
+        real_file = tmp_path / "real.yaml"
+        real_file.write_text('version: "1.0"\ncategories: []\ntemplates: []')
+        symlink = tmp_path / "symlink.yaml"
+        symlink.symlink_to(real_file)
+
+        # Real file should work
+        data = load_yaml(real_file)
+        assert data["version"] == "1.0"
+
+        # Symlink should be rejected
+        with pytest.raises(ValueError, match="symlink"):
+            load_yaml(symlink)
+
+    def test_save_yaml_rejects_symlinks(self, tmp_path):
+        """save_yaml should reject symlinks to prevent symlink race attacks."""
+        from scripts.template_manager import save_yaml, load_yaml_raw
+
+        # Create a real file and a symlink to it
+        real_file = tmp_path / "real.yaml"
+        real_file.write_text('version: "1.0"\ncategories: []\ntemplates: []')
+        symlink = tmp_path / "symlink.yaml"
+        symlink.symlink_to(real_file)
+
+        data = {"version": "1.0", "categories": [], "templates": []}
+
+        # Symlink should be rejected
+        with pytest.raises(ValueError, match="symlink"):
+            save_yaml(symlink, data)
+
+
 class TestUpdateCommand:
     """Test the update subcommand."""
 

@@ -102,22 +102,31 @@ def load_yaml_raw(path: Path):
 def save_yaml(path: Path, data) -> None:
     """Save YAML data preserving comments and formatting.
 
+    Uses secure temporary file to prevent symlink attacks.
+
     Args:
         path: Path to write to
         data: ruamel.yaml CommentedMap or dict to save
     """
+    import tempfile
+    import os
+
     yaml = get_yaml_handler()
-    # Write to temp file first for atomic operation
-    temp_path = path.with_suffix(".yaml.tmp")
+    # Use secure temp file in same directory for atomic rename
+    # tempfile.mkstemp creates file with secure permissions (0600)
+    dir_path = path.parent
+    fd, temp_path = tempfile.mkstemp(suffix=".yaml.tmp", dir=dir_path)
     try:
-        with open(temp_path, "w") as f:
+        with os.fdopen(fd, "w") as f:
             yaml.dump(data, f)
-        # Atomic move
-        temp_path.replace(path)
+        # Atomic move (works on same filesystem)
+        Path(temp_path).replace(path)
     except Exception:
         # Clean up temp file on error
-        if temp_path.exists():
-            temp_path.unlink()
+        try:
+            os.unlink(temp_path)
+        except OSError:
+            pass
         raise
 
 

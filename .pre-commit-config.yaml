@@ -32,9 +32,20 @@ repos:
     rev: 0.29.4
     hooks:
       - id: check-jsonschema
-        name: Validate templates.yaml
+        name: Validate templates.yaml schema
         files: ^templates\.yaml$
         args: ['--schemafile', 'templates.schema.yaml']
+
+  # Semantic validation for templates.yaml (ADR-007)
+  - repo: local
+    hooks:
+      - id: template-manager-validate
+        name: Validate templates.yaml (semantic)
+        entry: python scripts/template_manager.py validate
+        language: python
+        files: ^templates\.yaml$
+        additional_dependencies: ['ruamel.yaml', 'jsonschema']
+        pass_filenames: false
 
   # Python formatting (for aggregation scripts)
   - repo: https://github.com/astral-sh/ruff-pre-commit

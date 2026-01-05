@@ -154,7 +154,56 @@ fix(links): Correct broken GitHub links in ADR-001
 
 ## Adding a New Template
 
-To add a new template to the documentation site:
+### Using the Template Manager CLI (Recommended)
+
+The template manager CLI provides validated operations with clear error messages:
+
+```bash
+# 1. Create a branch
+git checkout -b add-my-template
+
+# 2. Add the template via CLI
+python scripts/template_manager.py add \
+  --id your-template-name \
+  --repo amiable-dev/your-template-repo \
+  --title "Your Template Title" \
+  --description "Brief description" \
+  --category observability \
+  --tier starter
+
+# 3. Validate (runs automatically, but can verify)
+python scripts/template_manager.py validate
+
+# 4. Commit and create PR
+git add templates.yaml
+git commit -m "feat: add your-template-name to registry"
+git push -u origin add-my-template
+gh pr create --title "Add your-template-name" --body "Adds new template..."
+```
+
+**Available CLI commands:**
+```bash
+python scripts/template_manager.py --help     # Show all commands
+python scripts/template_manager.py list       # List all templates
+python scripts/template_manager.py validate   # Validate registry
+python scripts/template_manager.py add        # Add new template
+python scripts/template_manager.py update     # Update existing template
+python scripts/template_manager.py remove     # Remove template
+```
+
+### Using Claude Code Skill
+
+If you're using Claude Code, you can use the template-registry skill:
+
+1. The skill is in `.claude/skills/template-registry/`
+2. Ask Claude to "add a new template" or "update template X"
+3. Claude will use the CLI tool with proper validation
+
+See `.claude/skills/template-registry/SKILL.md` for skill documentation.
+
+### Manual Editing
+
+For direct YAML editing (advanced users):
 
 1. **Ensure the template repo exists** and has documentation
 
@@ -169,7 +218,6 @@ To add a new template to the documentation site:
        description: "Brief description"
        category: observability  # or ai-infrastructure, etc.
        directories:
-         template: "."
          docs:
            - path: "README.md"
              target: "overview.md"
@@ -177,9 +225,9 @@ To add a new template to the documentation site:
          github: "https://github.com/amiable-dev/your-template-repo"
    ```
 
-3. **Validate the schema:**
+3. **Validate the registry:**
    ```bash
-   check-jsonschema --schemafile templates.schema.yaml templates.yaml
+   python scripts/template_manager.py validate
    ```
 
 4. **Run aggregation locally:**
@@ -280,6 +328,8 @@ pre-commit install
 This enables:
 - **Gitleaks**: Detects accidentally committed secrets
 - **yamllint**: Validates YAML configuration files
+- **check-jsonschema**: Validates templates.yaml schema
+- **template-manager-validate**: Semantic validation (duplicate IDs, references)
 - **Trailing whitespace/EOF**: Code hygiene checks
 
 ### Security Best Practices
